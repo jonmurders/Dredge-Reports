@@ -8,8 +8,10 @@ import plotly.graph_objects as go
 
 #Load Data from CSV
 master = pd.read_csv('19122000.csv')
-master.Time = pd.to_datetime(master.Time, format = '%H:%M:%S')
-
+master.Time = pd.to_datetime(master.Time, format = '%H:%M:%S').dt.time
+master.Date = pd.to_datetime(master.Date, format = '%Y/%m/%d')
+master.Time = master.apply(lambda master : pd.datetime.combine(master['Date'],master['Time']),1)
+dredgemaster = master[['Time','VELOCITY','DENSITY','DISCHPR','SWINGSPD','SWINGRADIUS','CDBW','MDBW','CONFIGURATION',]]
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 #Dredge Data
@@ -47,13 +49,19 @@ trace_p2gear = go.Scatter(x=master['Time'], y=master['P2GEAR'],name="Gear")
 
 pump2data = [trace_p2intake,trace_p2discharge,trace_p2hp,trace_p2hplimit,trace_p2gear]
 
+trace_cuttertorque = go.Scatter(x=master['Time'], y=master['CUTTERT'],name="Cutter Torque (ft/lbs)")
+trace_cuttertorquelimit = go.Scatter(x=master['Time'], y=master['CUTTERTLIM'],name="Cutter Torque Limit (%)")
+trace_cutterrpm = go.Scatter(x=master['Time'], y=master['CUTTERRPM'],name="Cutter RPM")
+trace_cutterrpmsp = go.Scatter(x=master['Time'], y=master['CUTTERRPMSP'],name="Cutter RPM Set Point")
 
+cutterdata = [trace_cuttertorque,trace_cuttertorquelimit,trace_cutterrpm,trace_cutterrpmsp]
 
 layout = dict(showlegend=True)
 
 dredgegraph = dict(data=data,layout=layout)
 pump1graph = dict(data = pump1data, layout=layout)
 pump2graph = dict(data = pump2data, layout=layout)
+cuttergraph = dict(data = cutterdata, layout = layout)
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 def dredge_stats():
@@ -64,6 +72,15 @@ def dredge_stats():
             html.H3(children = 'Dredge Stats'),
             dcc.Graph(id = 'dredge-graph',figure = dredgegraph),
         ]
+    )
+def dredge_table():
+    return dash_table.DataTable(
+        id = 'dredgetable',
+        columns=[{"name": i, "id": i} for i in dredgemaster.columns],
+        data = dredgemaster.to_dict('records'),
+        sort_action = 'custom',
+        sort_mode = 'multi',
+        sort_by=[]
     )
 def pumpone_stats(width):
     return html.Div(
@@ -82,6 +99,15 @@ def pumptwo_stats(width):
             html.H3(children = 'Pump 2 Stats'),
             dcc.Graph(id = 'pump2-graph', figure = pump2graph)
         ],
+    )
+def cutter_stats():
+    return html.Div(
+        id = 'cutterstats',
+        className = width,
+        children = [
+            html.H3(children = 'Cutter Stats'),
+            dcc.Graph(id = 'cutter-graph', figure = cuttergraph)
+            ],
     )
 def build_tabs():
     return html.Div(
@@ -199,6 +225,14 @@ def build_dredge_tab():
         className = 'twelve columns',
         children = [
             dredge_stats(),
+            # dash_table.DataTable(
+            #     id = 'dredgetable',
+            #     columns=[{"name": i, "id": i} for i in dredgemaster.columns],
+            #     data = dredgemaster.to_dict('records'),
+            #     sort_action = 'custom',
+            #     sort_mode = 'multi',
+            #     sort_by=[],
+            # )
         ]
     )
 
@@ -217,8 +251,7 @@ def build_cutter_tab():
         id ='Cutter-Container',
         className = 'twelve columns',
         children = [
-            pumpone_stats('twelve columns'),
-            pumptwo_stats('twelve columns'),
+            cutter_stats('twelve columns')
         ]
     )
 
@@ -328,8 +361,26 @@ def render_tabs(tab):
         return build_generators_tab()
     elif tab == 'boosters':
         return build_boosters_tab()
-
-
+# @app.callback(
+#     Output('dredgetable','data'),
+#     [Input('dredgetable','page_current'),
+#     Input('dredgetable', 'sort_by')]
+# )
+#
+# def update_dredgetable():
+#     print(sort_by)
+#     if len(sort_by):
+#         dff = dredgemaster.sort_values(
+#             [col['column_id'] for col in sort_by],
+#             ascending=[
+#                 col['direction'] == 'asc'
+#                 for col in sort_by
+#             ],
+#             inplace=False
+#         )
+#     else:
+#         # No sort is applied
+#         dff = dredgemaster
 
 if __name__ == '__main__':
     app.run_server(debug=True)
