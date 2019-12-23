@@ -1,7 +1,9 @@
 import pandas as pd
 import dash
+import dash_table
 import dash_core_components as dcc
 import dash_html_components as html
+from dash.dependencies import Output, Input
 import plotly.graph_objects as go
 
 #Load Data from CSV
@@ -63,19 +65,19 @@ def dredge_stats():
             dcc.Graph(id = 'dredge-graph',figure = dredgegraph),
         ]
     )
-def pumpone_stats():
+def pumpone_stats(width):
     return html.Div(
         id = 'pump1stats',
-        className = 'six columns',
+        className = width,
         children = [
             html.H3(children = 'Pump 1 Stats'),
             dcc.Graph(id = 'pump1-graph', figure = pump1graph)
         ],
     )
-def pumptwo_stats():
+def pumptwo_stats(width):
     return html.Div(
         id = 'pump2stats',
-        className = 'six columns',
+        className = width,
         children = [
             html.H3(children = 'Pump 2 Stats'),
             dcc.Graph(id = 'pump2-graph', figure = pump2graph)
@@ -88,27 +90,83 @@ def build_tabs():
         children = [
             dcc.Tabs(
                 id='app-tabs',
-                value = 'tab3',
+                value = 'overview',
                 className = 'custom-tabs',
                 children = [
                     dcc.Tab(
                         id='Overview',
                         label = 'Overview',
-                        value = 'tab1',
+                        value = 'overview',
                         className = 'custom-tab',
                         selected_className = 'custom-tab--selected',
                     ),
                     dcc.Tab(
                         id='dredgeview',
                         label = 'Dredge',
-                        value = 'tab2',
+                        value = 'dredge',
                         className = 'custom-tab',
                         selected_className = 'custom-tab--selected',
                     ),
                     dcc.Tab(
                         id='pumpview',
                         label = 'Pumps',
-                        value = 'tab3',
+                        value = 'pumps',
+                        className = 'custom-tab',
+                        selected_className = 'custom-tab--selected',
+                    ),
+                    dcc.Tab(
+                        id = 'cutterview',
+                        label = 'Cutter',
+                        value = 'cutter',
+                        className = 'custom-tab',
+                        selected_className = 'custom-tab--selected',
+                    ),
+                    dcc.Tab(
+                        id = 'swingview',
+                        label = 'Swing Hoist',
+                        value = 'swing',
+                        className = 'custom-tab',
+                        selected_className = 'custom-tab--selected',
+                    ),
+                    dcc.Tab(
+                        id = 'ladderview',
+                        label = 'Ladder Hoist',
+                        value = 'ladder',
+                        className = 'custom-tab',
+                        selected_className = 'custom-tab--selected',
+                    ),
+                    dcc.Tab(
+                        id = 'spudview',
+                        label = 'Spuds',
+                        value = 'spuds',
+                        className = 'custom-tab',
+                        selected_className = 'custom-tab--selected',
+                    ),
+                    dcc.Tab(
+                        id = 'positionview',
+                        label = 'Positions and Angles',
+                        value = 'positions',
+                        className = 'custom-tab',
+                        selected_className = 'custom-tab--selected',
+                    ),
+                    dcc.Tab(
+                        id = 'srvview',
+                        label = 'SRV',
+                        value = 'srv',
+                        className = 'custom-tab',
+                        selected_className = 'custom-tab--selected',
+                    ),
+                    dcc.Tab(
+                        id = 'genview',
+                        label = 'Generators',
+                        value = 'gens',
+                        className = 'custom-tab',
+                        selected_className = 'custom-tab--selected',
+                    ),
+                    dcc.Tab(
+                        id = 'boosters',
+                        label = 'Boosters',
+                        value = 'boosters',
                         className = 'custom-tab',
                         selected_className = 'custom-tab--selected',
                     ),
@@ -126,13 +184,112 @@ def build_overview_tab():
                 id ='Pumps',
                 className = 'row',
                 children = [
-                    pumpone_stats(),
-                    pumptwo_stats()
+                    pumpone_stats('six columns'),
+                    pumptwo_stats('six columns'),
 
                     ],
                 ),
             ]
 
+    )
+
+def build_dredge_tab():
+    return html.Div(
+        id = 'Dredge-Container',
+        className = 'twelve columns',
+        children = [
+            dredge_stats(),
+        ]
+    )
+
+def build_pumps_tab():
+    return html.Div(
+        id ='Pumps-Container',
+        className = 'twelve columns',
+        children = [
+            pumpone_stats('twelve columns'),
+            pumptwo_stats('twelve columns'),
+        ]
+    )
+
+def build_cutter_tab():
+    return html.Div(
+        id ='Cutter-Container',
+        className = 'twelve columns',
+        children = [
+            pumpone_stats('twelve columns'),
+            pumptwo_stats('twelve columns'),
+        ]
+    )
+
+def build_swing_tab():
+    return html.Div(
+        id ='Swing-Container',
+        className = 'twelve columns',
+        children = [
+            pumpone_stats('twelve columns'),
+            pumptwo_stats('twelve columns'),
+        ]
+    )
+
+def build_ladder_tab():
+    return html.Div(
+        id ='Ladder-Container',
+        className = 'twelve columns',
+        children = [
+            pumpone_stats('twelve columns'),
+            pumptwo_stats('twelve columns'),
+        ]
+    )
+
+def build_spuds_tab():
+    return html.Div(
+        id ='Spuds-Container',
+        className = 'twelve columns',
+        children = [
+            pumpone_stats('twelve columns'),
+            pumptwo_stats('twelve columns'),
+        ]
+    )
+
+def build_positions_tab():
+    return html.Div(
+        id ='Positions-Container',
+        className = 'twelve columns',
+        children = [
+            pumpone_stats('twelve columns'),
+            pumptwo_stats('twelve columns'),
+        ]
+    )
+
+def build_srv_tab():
+    return html.Div(
+        id ='SRV-Container',
+        className = 'twelve columns',
+        children = [
+            pumpone_stats('twelve columns'),
+            pumptwo_stats('twelve columns'),
+        ]
+    )
+
+def build_generators_tab():
+    return html.Div(
+        id ='Generators-Container',
+        className = 'twelve columns',
+        children = [
+            pumpone_stats('twelve columns'),
+            pumptwo_stats('twelve columns'),
+        ]
+    )
+
+def build_boosters_tab():
+    return html.Div(
+        id ='Boosters-Container',
+        className = 'twelve columns',
+        children = [
+            pumpone_stats('twelve columns'),
+            pumptwo_stats('twelve columns'),
+        ]
     )
 
 app.layout = html.Div(
@@ -141,21 +298,38 @@ app.layout = html.Div(
 
         html.H1(children = 'Dredge Dashboard'),
         build_tabs(),
-        build_overview_tab(),
-        # dredge_stats(),
-        # html.Div(
-        #     id ='Pumps',
-        #     className = 'row',
-        #     children = [
-        #         pumpone_stats(),
-        #         pumptwo_stats(),
-        #     ],
-        # )
+        html.Div(id='app-content'),
+        ]
+)
+@app.callback(
+    Output('app-content','children'),
+    [Input('app-tabs','value')])
+
+def render_tabs(tab):
+    if tab == 'overview':
+        return build_overview_tab()
+    elif tab == 'dredge':
+        return build_dredge_tab()
+    elif tab == 'pumps':
+        return build_pumps_tab()
+    elif tab == 'cutter':
+        return build_cutter_tab()
+    elif tab == 'swing':
+        return build_swing_tab()
+    elif tab == 'ladder':
+        return build_ladder_tab()
+    elif tab == 'spuds':
+        return build_spuds_tab()
+    elif tab == 'positions':
+        return build_positions_tab()
+    elif tab == 'srv':
+        return build_srv_tab()
+    elif tab == 'gens':
+        return build_generators_tab()
+    elif tab == 'boosters':
+        return build_boosters_tab()
 
 
 
-
-
-        ])
 if __name__ == '__main__':
     app.run_server(debug=True)
