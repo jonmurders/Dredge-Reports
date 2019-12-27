@@ -12,7 +12,8 @@ master.Time = pd.to_datetime(master.Time, format = '%H:%M:%S').dt.time
 master.Date = pd.to_datetime(master.Date, format = '%Y/%m/%d')
 master.Time = master.apply(lambda master : pd.datetime.combine(master['Date'],master['Time']),1)
 dredgemaster = master[['Time','VELOCITY','DENSITY','DISCHPR','SWINGSPD','SWINGRADIUS','CDBW','MDBW','CONFIGURATION',]]
-external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
+
+
 
 #Dredge Data
 trace_velocity = go.Scatter(x=master['Time'], y=master['VELOCITY'],name="Velocity")
@@ -62,7 +63,14 @@ dredgegraph = dict(data=data,layout=layout)
 pump1graph = dict(data = pump1data, layout=layout)
 pump2graph = dict(data = pump2data, layout=layout)
 cuttergraph = dict(data = cutterdata, layout = layout)
+
+#Loading Style Sheet
+external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
+
+
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+
+server = app.server
 
 def dredge_stats():
     return html.Div(
@@ -383,4 +391,4 @@ def render_tabs(tab):
 #         dff = dredgemaster
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=False,host='10.0.0.153')
