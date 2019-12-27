@@ -57,13 +57,19 @@ trace_cutterrpmsp = go.Scatter(x=master['Time'], y=master['CUTTERRPMSP'],name="C
 
 cutterdata = [trace_cuttertorque,trace_cuttertorquelimit,trace_cutterrpm,trace_cutterrpmsp]
 
+comparisondata = [trace_velocity,trace_density,trace_dischpr,trace_swingspd,trace_swingradius,trace_cdbw,trace_mdbw,trace_configuration,
+                    trace_p1intake,trace_p1discharge,trace_p1hp,trace_p1hplimit,trace_p1gear,
+                    trace_p2intake,trace_p2discharge,trace_p2hp,trace_p2hplimit,trace_p2gear,
+                    trace_cuttertorque,trace_cuttertorquelimit,trace_cutterrpm,trace_cutterrpmsp,
+    ]
+
 layout = dict(showlegend=True)
 
 dredgegraph = dict(data=data,layout=layout)
 pump1graph = dict(data = pump1data, layout=layout)
 pump2graph = dict(data = pump2data, layout=layout)
-cuttergraph = dict(data = cutterdata, layout = layout)
-
+cuttergraph = dict(data = cutterdata, layout = layout,)
+comparisongraph = dict(data = comparisondata, layout = layout)
 #Loading Style Sheet
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
@@ -108,7 +114,7 @@ def pumptwo_stats(width):
             dcc.Graph(id = 'pump2-graph', figure = pump2graph)
         ],
     )
-def cutter_stats():
+def cutter_stats(width):
     return html.Div(
         id = 'cutterstats',
         className = width,
@@ -117,6 +123,19 @@ def cutter_stats():
             dcc.Graph(id = 'cutter-graph', figure = cuttergraph)
             ],
     )
+def comparison_stats():
+    return html.Div(
+    id = 'comparisonstats',
+    #classname = 'twelve columns',
+    children = [
+        html.H3(children = 'Comparison'),
+        dcc.Graph(id = 'comparison-graph', figure = comparisongraph)
+        ],
+        
+        )
+
+
+
 def build_tabs():
     return html.Div(
         id = 'tabs',
@@ -201,6 +220,13 @@ def build_tabs():
                         id = 'boosters',
                         label = 'Boosters',
                         value = 'boosters',
+                        className = 'custom-tab',
+                        selected_className = 'custom-tab--selected',
+                    ),
+                    dcc.Tab(
+                        id = 'comparison',
+                        label = 'Comparison',
+                        value = 'comparison',
                         className = 'custom-tab',
                         selected_className = 'custom-tab--selected',
                     ),
@@ -332,7 +358,14 @@ def build_boosters_tab():
             pumptwo_stats('twelve columns'),
         ]
     )
-
+def build_comparison_tab():
+    return html.Div(
+        id = 'Comparison-Container',
+        className = 'twelve columns',
+        children = [
+            comparison_stats()
+        ],
+    )
 app.layout = html.Div(
     id='Main Container',
     children = [
@@ -369,6 +402,8 @@ def render_tabs(tab):
         return build_generators_tab()
     elif tab == 'boosters':
         return build_boosters_tab()
+    elif tab == 'comparison':
+        return build_comparison_tab()
 # @app.callback(
 #     Output('dredgetable','data'),
 #     [Input('dredgetable','page_current'),
@@ -391,4 +426,5 @@ def render_tabs(tab):
 #         dff = dredgemaster
 
 if __name__ == '__main__':
-    app.run_server(debug=False,host='10.0.0.153')
+    #app.run_server(debug=False,host='10.0.0.11')
+    app.run_server(debug=True,host='10.0.0.153')
