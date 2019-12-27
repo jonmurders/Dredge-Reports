@@ -1,25 +1,35 @@
-import dash
-import dash_core_components as dcc
-import dash_html_components as html
+import jinja2
+import os
+import pandas as pd
+from bokeh.layouts import column
+from bokeh.models import Button, CustomJS, ColumnDataSource
+from bokeh.palettes import RdYlBu3
+from bokeh.plotting import figure, curdoc
+from bokeh.io import output_file, show
+from bokeh.models.widgets import MultiSelect
 
-external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
-app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+templateLoader = jinja2.FileSystemLoader(searchpath="./")
+templateEnv = jinja2.Environment(loader=templateLoader)
+TEMPLATE_FILE = "name.txt"
+template = templateEnv.get_template(TEMPLATE_FILE)
+outputText = template.render(name='Jon')
 
-app.layout = html.Div(children = [
-    html.H1(children = 'Hello Dash'),
+master = pd.read_csv('19122000.csv')
+master.Time = pd.to_datetime(master.Time, format = '%H:%M:%S')
+mastersource = ColumnDataSource(master)
+multiselect = MultiSelect(title = 'Tags', value = ['VELOCITY'],options = [('VELOCITY','Velocity'),['DENSITY','Density']] )
 
-    html.Div(children = 'Dash: A web application framework for Python.'),
+callback = CustomJS(args=dict(source = mastersource), code = '''
 
-    dcc.Graph(
-        id = 'example-graph',
-        figure = {
-            'data': [
-                {'x': [1, 2, 3], 'y': [4, 1, 2], 'type': 'bar', 'name': 'SF'},
-                {'x': [1, 2, 3], 'y': [2, 4, 5], 'type': 'bar', 'name': u'Montréal'},
-            ],
-        }
-    )
-    ])
-if __name__ == '__main__':
-    app.run_server(debug=True)
+    var data = mastersource.data
+
+
+''')
+
+#Velocity plot
+vp = figure(y_range=(0, 1),x_axis_type = 'datetime')
+vp.line(master.Time,master.VELOCITY)
+
+curdoc().add_root(column(vp,multiselect))
+os.system('bokeh serve --show reportbuilder.py')
