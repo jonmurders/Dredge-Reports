@@ -426,5 +426,7 @@ def render_tabs(tab):
 #         dff = dredgemaster
 
 if __name__ == '__main__':
-    #app.run_server(debug=False,host='10.0.0.11')
-    app.run_server(debug=True,host='10.0.0.153')
+
+    #HMA Server IP: 10.0.0.11
+    app.run_server(debug=False, host = '10.0.0.11')
+
