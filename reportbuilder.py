@@ -6,6 +6,9 @@ import dash_html_components as html
 from dash.dependencies import Output, Input
 import plotly.graph_objects as go
 
+port = 8050
+title = 'Office Test'
+
 #Load Data from CSV
 master = pd.read_csv('19122000.csv')
 master.Time = pd.to_datetime(master.Time, format = '%H:%M:%S').dt.time
@@ -131,7 +134,7 @@ def comparison_stats():
         html.H3(children = 'Comparison'),
         dcc.Graph(id = 'comparison-graph', figure = comparisongraph)
         ],
-        
+
         )
 
 
@@ -370,7 +373,7 @@ app.layout = html.Div(
     id='Main Container',
     children = [
 
-        html.H1(children = 'Dredge Dashboard'),
+        html.H1(children = title+'Dredge Dashboard'),
         build_tabs(),
         html.Div(id='app-content'),
         ]
@@ -428,5 +431,4 @@ def render_tabs(tab):
 if __name__ == '__main__':
 
     #HMA Server IP: 10.0.0.11
-    app.run_server(debug=False, host = '10.0.0.11')
-
+    app.run_server(debug=False, host = '10.0.0.11', port=port)
