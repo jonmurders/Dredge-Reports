@@ -5,9 +5,24 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Output, Input
 import plotly.graph_objects as go
+import pyodbc
+
+
+#SQL Connection
+server = 'HMA-S-003'
+database = 'DredgeData'
+userid = 'redlion'
+passwd = 'Weeks123!'
+table = 'test'
+cnxn = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};SERVER='+server+';DATABASE='+database+';UID='+userid+';PWD='+passwd+'; Trusted_Connection=yes')
+query = "SELECT * FROM "+table+";"
+master = pd.read_sql(query, cnxn)
+master.to_csv()
 
 #Load Data from CSV
-master = pd.read_csv('19122000.csv')
+#master = pd.read_csv('19122000.csv')
+
+#formating data
 master.Time = pd.to_datetime(master.Time, format = '%H:%M:%S').dt.time
 master.Date = pd.to_datetime(master.Date, format = '%Y/%m/%d')
 master.Time = master.apply(lambda master : pd.datetime.combine(master['Date'],master['Time']),1)
