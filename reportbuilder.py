@@ -5,12 +5,31 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Output, Input
 import plotly.graph_objects as go
+import pyodbc
+
+
+#SQL Connection
+server = 'HMA-S-003'
+database = 'DredgeData'
+userid = 'redlion'
+passwd = 'Weeks123!'
+table = 'test'
+cnxn = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};SERVER='+server+';DATABASE='+database+';UID='+userid+';PWD='+passwd+'; Trusted_Connection=yes')
+query = "SELECT * FROM "+table+" ORDER BY Time;"
+master = pd.read_sql(query, cnxn)
+
+port = 8050
+title = 'Office Test'
 
 #Load Data from CSV
-master = pd.read_csv('19122000.csv')
+#master = pd.read_csv('19122000.csv')
+
+#formating data
 master.Time = pd.to_datetime(master.Time, format = '%H:%M:%S').dt.time
 master.Date = pd.to_datetime(master.Date, format = '%Y/%m/%d')
 master.Time = master.apply(lambda master : pd.datetime.combine(master['Date'],master['Time']),1)
+master.sort_values(by='Time')
+master.dropna(axis=0)
 dredgemaster = master[['Time','VELOCITY','DENSITY','DISCHPR','SWINGSPD','SWINGRADIUS','CDBW','MDBW','CONFIGURATION',]]
 
 
@@ -131,7 +150,7 @@ def comparison_stats():
         html.H3(children = 'Comparison'),
         dcc.Graph(id = 'comparison-graph', figure = comparisongraph)
         ],
-        
+
         )
 
 
@@ -370,7 +389,7 @@ app.layout = html.Div(
     id='Main Container',
     children = [
 
-        html.H1(children = 'Dredge Dashboard'),
+        html.H1(children = title+'Dredge Dashboard'),
         build_tabs(),
         html.Div(id='app-content'),
         ]
@@ -428,5 +447,4 @@ def render_tabs(tab):
 if __name__ == '__main__':
 
     #HMA Server IP: 10.0.0.11
-    app.run_server(debug=False, host = '10.0.0.11')
-
+    app.run_server(debug=False, host = '10.0.0.153', port=port)
