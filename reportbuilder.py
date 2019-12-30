@@ -81,10 +81,10 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 server = app.server
 
-def dredge_stats():
+def dredge_stats(width):
     return html.Div(
         id = 'dredgestats',
-        className = 'dredgestats',
+        className = width,
         children = [
             html.H3(children = 'Dredge Stats'),
             dcc.Graph(id = 'dredge-graph',figure = dredgegraph),
@@ -241,14 +241,23 @@ def build_tabs():
 def build_selectors():
     return html.Div(
         id = 'filter',
-        className = 'pretty_container four columns',
+        className = "pretty_container four columns",
+        children = [
         html.P('Select date range',className = 'control_label'),
         dcc.RangeSlider(
             id= 'date-slider',
             className = 'dcc_control'
         ),
+        html.P('Filter by Job:', className = 'control_label'),
+        dcc.Dropdown(
+            id="job-filter",
+            options=['All','Test'],
+            multi=True,
+            value='All',
+            className="dcc_control",
+                ),
 
-    )
+    ])
 
 
 def build_overview_tab():
@@ -257,7 +266,7 @@ def build_overview_tab():
         className = 'twelve columns',
         children = [
             build_selectors(),
-            dredge_stats(),
+            dredge_stats('eight columns'),
             html.Div(
                 id ='Pumps',
                 className = 'row',
@@ -276,7 +285,7 @@ def build_dredge_tab():
         id = 'Dredge-Container',
         className = 'twelve columns',
         children = [
-            dredge_stats(),
+            dredge_stats('twelve columns'),
             # dash_table.DataTable(
             #     id = 'dredgetable',
             #     columns=[{"name": i, "id": i} for i in dredgemaster.columns],
