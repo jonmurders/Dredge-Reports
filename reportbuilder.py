@@ -237,11 +237,26 @@ def build_tabs():
             )
         ],
     )
+
+def build_selectors():
+    return html.Div(
+        id = 'filter',
+        className = 'pretty_container four columns',
+        html.P('Select date range',className = 'control_label'),
+        dcc.RangeSlider(
+            id= 'date-slider',
+            className = 'dcc_control'
+        ),
+
+    )
+
+
 def build_overview_tab():
     return html.Div(
         id = 'Overview-Container',
         className = 'twelve columns',
         children = [
+            build_selectors(),
             dredge_stats(),
             html.Div(
                 id ='Pumps',
@@ -431,4 +446,4 @@ def render_tabs(tab):
 if __name__ == '__main__':
 
     #HMA Server IP: 10.0.0.11
-    app.run_server(debug=False, host = '10.0.0.11', port=port)
+    app.run_server(debug=False, host = '10.0.0.153', port=port)
