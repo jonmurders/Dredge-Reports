@@ -15,9 +15,8 @@ userid = 'redlion'
 passwd = 'Weeks123!'
 table = 'test'
 cnxn = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};SERVER='+server+';DATABASE='+database+';UID='+userid+';PWD='+passwd+'; Trusted_Connection=yes')
-query = "SELECT * FROM "+table+";"
+query = "SELECT * FROM "+table+" ORDER BY Time;"
 master = pd.read_sql(query, cnxn)
-master.to_csv()
 
 port = 8050
 title = 'Office Test'
@@ -29,6 +28,8 @@ title = 'Office Test'
 master.Time = pd.to_datetime(master.Time, format = '%H:%M:%S').dt.time
 master.Date = pd.to_datetime(master.Date, format = '%Y/%m/%d')
 master.Time = master.apply(lambda master : pd.datetime.combine(master['Date'],master['Time']),1)
+master.sort_values(by='Time')
+master.dropna(axis=0)
 dredgemaster = master[['Time','VELOCITY','DENSITY','DISCHPR','SWINGSPD','SWINGRADIUS','CDBW','MDBW','CONFIGURATION',]]
 
 
@@ -446,4 +447,4 @@ def render_tabs(tab):
 if __name__ == '__main__':
 
     #HMA Server IP: 10.0.0.11
-    app.run_server(debug=False, host = '10.0.0.11', port=port)
+    app.run_server(debug=False, host = '10.0.0.153', port=port)
