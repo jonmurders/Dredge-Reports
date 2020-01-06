@@ -1,4 +1,5 @@
 import pandas as pd
+from datetime import datetime, date
 import dash
 import dash_table
 import dash_core_components as dcc
@@ -19,23 +20,109 @@ table = 'EWE_300_MAIN'
 cnxn_string ='DRIVER={ODBC Driver 17 for SQL Server};SERVER='+server+';DATABASE='+database+';UID='+userid+';PWD='+passwd+'; Trusted_Connection=yes'
 cnxn = pyodbc.connect(cnxn_string)
 query = "SELECT * FROM "+table+" ORDER BY DateTime;"
-master = pd.read_sql(query, cnxn)
-
+all = pd.read_sql(query, cnxn)
+oneday = all.loc[all.DateTime > all.DateTime.shift()-pd.Timedelta(hours = 24)]
 port = 8050
 title = 'Office Test'
+datetime_now = datetime.now()
+dtwt = date.today()
+date = datetime.combine(dtwt, datetime.min.time())
+time = datetime.time(datetime_now)
 
-
-# master = pd.read_csv('19122600.csv')
+master = all
+master.index = master.DateTime
+#master = pd.read_csv('20010400.csv')
 #formating data
+master['Date'] = pd.to_datetime(master.DateTime, format = '%Y/%m/%d')
 # master.Time = pd.to_datetime(master.Time, format = '%H:%M:%S').dt.time
 # master.Date = pd.to_datetime(master.Date, format = '%Y/%m/%d')
-# master.Time = master.apply(lambda master : pd.datetime.combine(master['Date'],master['Time']),1)
-# master.sort_values(by='Time')
-master.dropna(axis=0)
+# master.loc[:,'DateTime'] = master.apply(lambda master : pd.datetime.combine(master['Date'],master['Time']),1)
+# master.sort_values(by='DateTime')
+# master.dropna(axis=0)
 
+#Setting Configuration
+master.loc[master['CONFIGURATION'] == 0, 'config'] = 'Dredge Spuds'
+master.loc[master['CONFIGURATION'] == 1, 'config'] = 'Christmas Tree'
+master.loc[master['CONFIGURATION'] == 2, 'config'] = 'Carriage Barge'
+
+#Overview Table Key
+key = ['Velocity (fps)', 'Density (SGU)', 'Discharge Pressure (psig)', 'Cutter Depth (ft.)', 'Pump One Horsepower', 'Pump Two Horsepower']
+
+
+#instant data column of overview table
 instantdata = pd.DataFrame(data = master.iloc[-1])
-print(instantdata.head(10))
-overviewdata = pd.concat([instantdata,instantdata,instantdata,instantdata,instantdata,instantdata,instantdata,], axis=1)
+dredge_status = instantdata.loc['RUNNING'].values.item()
+instant_velocity = instantdata.loc['VELOCITY'].values.item()
+instant_density = instantdata.loc['DENSITY'].values.item()
+instant_dischpr = instantdata.loc['DISCHPR'].values.item()
+instant_cdbw = instantdata.loc['CDBW'].values.item()
+instant_p1hp = instantdata.loc['P1HP'].values.item()
+instant_p2hp = instantdata.loc['P2HP'].values.item()
+instant_datalist = [instant_velocity,instant_density,instant_dischpr,instant_cdbw,instant_p1hp,instant_p2hp]
+instant_config = instantdata.loc['config'].values.item()
+
+#finding data for Today
+today = pd.DataFrame(data = master.loc[master.DateTime > date])
+today_running = today.loc[today['RUNNING']=='ON']
+today_avgdata = today.mean(axis = 0)
+today_velocity = today_avgdata.loc['VELOCITY']
+today_density = today_avgdata.loc['DENSITY']
+today_dischpr = today_avgdata.loc['DISCHPR']
+today_cdbw = today_avgdata.loc['CDBW']
+today_p1hp = today_avgdata.loc['P1HP']
+today_p2hp = today_avgdata.loc['P2HP']
+today_datalist = [today_velocity,today_density,today_dischpr,today_cdbw,today_p1hp,today_p2hp]
+
+#First Block Averages
+firstblock = today_running.between_time('00:00:00','6:00:00')
+firstblock_avgdata = firstblock.mean(axis = 0)
+firstblock_velocity = firstblock_avgdata.loc['VELOCITY']
+firstblock_density = firstblock_avgdata.loc['DENSITY']
+firstblock_dischpr = firstblock_avgdata.loc['DISCHPR']
+firstblock_cdbw = firstblock_avgdata.loc['CDBW']
+firstblock_p1hp = firstblock_avgdata.loc['P1HP']
+firstblock_p2hp = firstblock_avgdata.loc['P2HP']
+firstblock_datalist = [firstblock_velocity,firstblock_density,firstblock_dischpr,firstblock_cdbw,firstblock_p1hp,firstblock_p2hp]
+
+#Second Block Averages
+secondblock = today_running.between_time('06:00:01','12:00:00')
+secondblock_avgdata = secondblock.mean(axis = 0)
+secondblock_velocity = secondblock_avgdata.loc['VELOCITY']
+secondblock_density = secondblock_avgdata.loc['DENSITY']
+secondblock_dischpr = secondblock_avgdata.loc['DISCHPR']
+secondblock_cdbw = secondblock_avgdata.loc['CDBW']
+secondblock_p1hp = secondblock_avgdata.loc['P1HP']
+secondblock_p2hp = secondblock_avgdata.loc['P2HP']
+secondblock_datalist = [secondblock_velocity,secondblock_density,secondblock_dischpr,secondblock_cdbw,secondblock_p1hp,secondblock_p2hp]
+
+#Third Block Averages
+thirdblock = today_running.between_time('12:00:01','18:00:00')
+thirdblock_avgdata = thirdblock.mean(axis = 0)
+thirdblock_velocity = thirdblock_avgdata.loc['VELOCITY']
+thirdblock_density = thirdblock_avgdata.loc['DENSITY']
+thirdblock_dischpr = thirdblock_avgdata.loc['DISCHPR']
+thirdblock_cdbw = thirdblock_avgdata.loc['CDBW']
+thirdblock_p1hp = thirdblock_avgdata.loc['P1HP']
+thirdblock_p2hp = thirdblock_avgdata.loc['P2HP']
+thirdblock_datalist = [thirdblock_velocity,thirdblock_density,thirdblock_dischpr,thirdblock_cdbw,thirdblock_p1hp,thirdblock_p2hp]
+
+
+#Fourth Block Averages
+fourthblock = today_running.between_time('18:00:01','23:59:59')
+fourthblock_avgdata = fourthblock.mean(axis = 0)
+fourthblock_velocity = fourthblock_avgdata.loc['VELOCITY']
+fourthblock_density = fourthblock_avgdata.loc['DENSITY']
+fourthblock_dischpr = fourthblock_avgdata.loc['DISCHPR']
+fourthblock_cdbw = fourthblock_avgdata.loc['CDBW']
+fourthblock_p1hp = fourthblock_avgdata.loc['P1HP']
+fourthblock_p2hp = fourthblock_avgdata.loc['P2HP']
+fourthblock_datalist = [fourthblock_velocity,fourthblock_density,fourthblock_dischpr,fourthblock_cdbw,fourthblock_p1hp,fourthblock_p2hp]
+
+
+firstblocktableframe = pd.DataFrame(list(zip(key,instant_datalist,firstblock_datalist,secondblock_datalist,thirdblock_datalist,fourthblock_datalist,today_datalist,)), columns = ['Data','Instant','0:00-6:00','6:00-12:00','12:00-18:00','18:00-24:00','Today'])
+secondblocktableframe = pd.DataFrame(list(zip(key,instant_datalist,secondblock_datalist,firstblock_datalist,thirdblock_datalist,fourthblock_datalist,today_datalist,)), columns = ['Data','Instant','6:00-12:00','0:00-6:00','12:00-18:00','18:00-24:00','Today'])
+thirdblocktableframe = pd.DataFrame(list(zip(key,instant_datalist,thirdblock_datalist,firstblock_datalist,secondblock_datalist,fourthblock_datalist,today_datalist,)), columns = ['Data','Instant','12:00-18:00','0:00-6:00','6:00-12:00','18:00-24:00','Today'])
+fourthblocktableframe = pd.DataFrame(list(zip(key,instant_datalist,fourthblock_datalist,firstblock_datalist,secondblock_datalist,thirdblock_datalist,today_datalist,)), columns = ['Data','Instant','18:00-24:00','0:00-6:00','6:00-12:00','12:00-18:00','Today'])
 
 
 
@@ -50,6 +137,17 @@ trace_cdbw = go.Scatter(x=master.DateTime, y=master.CDBW, name='Cutter Depth Bel
 trace_mdbw = go.Scatter(x=master.DateTime, y=master.MDBW, name='Max Depth Below Water (ft)')
 #trace_configuration = go.Scatter(x=master.DateTime, y=master.CONFIGURATION, name='Configuration')
 data = [trace_velocity,trace_density,trace_dischpr,trace_swingspd,trace_swingradius,trace_cdbw,trace_mdbw,]
+
+# UWP Data
+trace_uwpintake = go.Scatter(x=master['DateTime'], y=master['UWPINTAKE'],name = "Suction Pressure(psig)")
+trace_uwpdisch = go.Scatter(x=master['DateTime'], y=master['UWPDISCH'],name = "Discharge Pressure(psig)")
+trace_uwphp = go.Scatter(x=master['DateTime'], y=master['UWPHP'],name = "Horsepower")
+trace_uwphplimit = go.Scatter(x=master['DateTime'], y=master['UWPHPLIMIT'],name = "Horsepower Limit")
+trace_uwpgear = go.Scatter(x=master['DateTime'], y=master['UWPINTAKE'],name = "Gear Ratio")
+trace_rpm = go.Scatter(x=master['DateTime'], y=master['UWPINTAKE'],name = "RPM")
+trace_rpmsp = go.Scatter(x=master['DateTime'], y=master['UWPINTAKE'],name = "RPM Set Point")
+
+uwpdata = [trace_uwpintake,trace_uwpdisch,trace_uwphp,trace_uwphplimit,trace_uwpgear,trace_rpm,trace_rpmsp,]
 
 #Pump 1 Data
 pumpone_table_data = master[['DateTime','P1INTAKE','P1DISCH','P1HP','P1HPLIMIT','P1GEAR',]]
@@ -132,7 +230,6 @@ trace_spudmainlplim = go.Scatter(x=master['DateTime'], y=master['SPMAINLPLIM'],n
 trace_spudmainls = go.Scatter(x=master['DateTime'], y=master['SPMAINLS'],name="Main Spud or Stern Christmas Tree Winch Line Speed (fpm)")
 trace_spudmainlssp = go.Scatter(x=master['DateTime'], y=master['SPMAINLSSP'],name="Main Spud or Stern Christmas Tree Winch Line Speed Set Point (fpm)")
 trace_spudmainpos = go.Scatter(x=master['DateTime'], y=master['SPMAINPOS'],name="Main Spud Position or Stern Christmas Tree Line Length (ft)")
-
 spudmaindata = [trace_spmain_xs_lp,trace_spudmainlplim,trace_spudmainls,trace_spudmainlssp,trace_spudmainpos]
 
 #Aux Spud Data
@@ -156,6 +253,7 @@ spudcardata = [trace_spcar_xs_lp,trace_spudcarlplim,trace_spudcarls,trace_spudca
 
 
 comparisondata = [trace_velocity,trace_density,trace_dischpr,trace_swingspd,trace_swingradius,trace_cdbw,trace_mdbw,
+                    trace_uwpintake,trace_uwpdisch,trace_uwphp,trace_uwphplimit,trace_uwpgear,trace_rpm,trace_rpmsp,
                     trace_p1intake,trace_p1discharge,trace_p1hp,trace_p1hplimit,trace_p1gear,
                     trace_p2intake,trace_p2discharge,trace_p2hp,trace_p2hplimit,trace_p2gear,
                     trace_cuttertorque,trace_cuttertorquelimit,trace_cutterrpm,trace_cutterrpmsp,
@@ -166,6 +264,7 @@ comparisondata = [trace_velocity,trace_density,trace_dischpr,trace_swingspd,trac
 layout = dict(showlegend=True)
 
 dredgegraph = dict(data=data,layout=layout)
+uwpgraph = dict(data=uwpdata,layout=layout)
 pump1graph = dict(data = pump1data, layout=layout)
 pump2graph = dict(data = pump2data, layout=layout)
 cuttergraph = dict(data = cutterdata, layout = layout,)
@@ -185,11 +284,12 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets,)
 
 server = app.server
 
-def overview_table_block1():
+def overview_table_firstblock():
     return dash_table.DataTable(
         id = 'overview-table',
-        columns = ['Instant','0:00-6:00','6:00-12:00','12:00-18:00','18:00-24:00','Today','Yearly'],
-        data = overviewdata.to_dict('records'),
+
+        columns=[{"name": i, "id": i} for i in firstblocktableframe.columns],
+        data=firstblocktableframe.to_dict('records'),
 
     )
 
@@ -205,6 +305,15 @@ def dredge_stats():
     )
 
 
+def uwp_stats(width):
+    return html.Div(
+        id = 'uwpstats',
+        className = width,
+        children = [
+            html.H3(children = 'UWP Stats'),
+            dcc.Graph(id = 'uwp-graph', figure = uwpgraph)
+        ],
+    )
 def pumpone_stats(width):
     return html.Div(
         id = 'pump1stats',
@@ -428,8 +537,10 @@ def build_overview_tab():
         id = 'Overview-Container',
         className = 'twelve columns',
         children = [
-            #overview_table_block1(),
-            html.H1("Table Goes Here")
+            html.Div(className='three columns'),
+            overview_table_firstblock(),
+            html.Div(className='three columns'),
+
             ]
 
     )
@@ -462,6 +573,7 @@ def build_pumps_tab():
             #
             # ],
             # ),
+            uwp_stats('six columns'),
             pumpone_stats('six columns'),
             pumptwo_stats('six columns'),
         ]
@@ -579,10 +691,10 @@ app.layout = html.Div(
     [Input('app-tabs','value')])
 
 def render_tabs(tab):
-    global master
-    cnxn = pyodbc.connect(cnxn_string)
-    query = "SELECT * FROM "+table+" ORDER BY DateTime;"
-    master = pd.read_sql(query, cnxn)
+    # global master
+    # cnxn = pyodbc.connect(cnxn_string)
+    # query = "SELECT * FROM "+table+" ORDER BY DateTime;"
+    # master = pd.read_sql(query, cnxn)
     if tab == 'overview':
         return build_overview_tab()
     elif tab == 'dredge':
@@ -613,6 +725,6 @@ def render_tabs(tab):
 if __name__ == '__main__':
 
     #HMA Server IP: 10.0.0.11
-    serve(app, host='10.0.0.11', port=8051)
+    #serve(app.server, host='10.0.0.153', port=8050, url_scheme='https',threads=16)
     #Testing
-    #app.run_server(debug=True, host = '10.0.0.153', port=port)
+    app.run_server(debug=True, host = '10.0.0.153', port=port)
