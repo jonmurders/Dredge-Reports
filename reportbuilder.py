@@ -4,6 +4,7 @@ import dash
 import dash_table
 import dash_core_components as dcc
 import dash_html_components as html
+import dash_daq as daq
 from dash.dependencies import Output, Input
 import plotly.graph_objects as go
 import pyodbc
@@ -13,15 +14,15 @@ from waitress import serve
 master = pd.DataFrame([])
 #SQL Connection
 server = 'HMA-S-003'
-database = 'DredgeData'
+database = 'DredgeSQL'
 userid = 'redlion'
 passwd = 'Weeks123!'
-table = 'EWE_300_MAIN'
+table = '[jschatry].[JSC_325_MAIN]'
 cnxn_string ='DRIVER={ODBC Driver 17 for SQL Server};SERVER='+server+';DATABASE='+database+';UID='+userid+';PWD='+passwd+'; Trusted_Connection=yes'
 cnxn = pyodbc.connect(cnxn_string)
 query = "SELECT * FROM "+table+" ORDER BY DateTime;"
-all = pd.read_sql(query, cnxn)
-oneday = all.loc[all.DateTime > all.DateTime.shift()-pd.Timedelta(hours = 24)]
+master = pd.read_sql(query, cnxn)
+# oneday = all.loc[all.DateTime > all.DateTime.shift()-pd.Timedelta(hours = 24)]
 port = 8050
 title = 'Office Test'
 datetime_now = datetime.now()
@@ -29,7 +30,7 @@ dtwt = date.today()
 date = datetime.combine(dtwt, datetime.min.time())
 time = datetime.time(datetime_now)
 
-master = all
+
 master.index = master.DateTime
 #master = pd.read_csv('20010400.csv')
 #formating data
@@ -44,6 +45,12 @@ master['Date'] = pd.to_datetime(master.DateTime, format = '%Y/%m/%d')
 master.loc[master['CONFIGURATION'] == 0, 'config'] = 'Dredge Spuds'
 master.loc[master['CONFIGURATION'] == 1, 'config'] = 'Christmas Tree'
 master.loc[master['CONFIGURATION'] == 2, 'config'] = 'Carriage Barge'
+
+#Elapsed Down Time
+
+master['ElapsedTimeDown'] = (master['DateTime'] - master['DateTime'].groupby(master.RUNNING.eq('ON').cumsum()).transform('first'))
+
+
 
 #Overview Table Key
 key = ['Velocity (fps)', 'Density (SGU)', 'Discharge Pressure (psig)', 'Cutter Depth (ft.)', 'Pump One Horsepower', 'Pump Two Horsepower']
@@ -60,7 +67,8 @@ instant_p1hp = instantdata.loc['P1HP'].values.item()
 instant_p2hp = instantdata.loc['P2HP'].values.item()
 instant_datalist = [instant_velocity,instant_density,instant_dischpr,instant_cdbw,instant_p1hp,instant_p2hp]
 instant_config = instantdata.loc['config'].values.item()
-
+downtime = instantdata.loc['ElapsedTimeDown'].values.item()
+print(downtime)
 #finding data for Today
 today = pd.DataFrame(data = master.loc[master.DateTime > date])
 today_running = today.loc[today['RUNNING']=='ON']
@@ -128,8 +136,8 @@ fourthblocktableframe = pd.DataFrame(list(zip(key,instant_datalist,fourthblock_d
 
 #Dredge Data
 dredge_table_data = master[['DateTime','VELOCITY','DENSITY','DISCHPR','SWINGSPD','SWINGRADIUS','CDBW','MDBW','CONFIGURATION',]]
-trace_velocity = go.Scatter(x=master['DateTime'], y=master['VELOCITY'],name="Velocity (fps)")
-trace_density = go.Scatter(x=master.DateTime, y=master.DENSITY,name='Density (SGU)')
+trace_velocity = go.Scatter(x=master['DateTime'], y=master['VELOCITY'],name="Velocity (fps)",)
+trace_density = go.Scatter(x=master.DateTime, y=master.DENSITY,name='Density (SGU)',)
 trace_dischpr = go.Scatter(x=master.DateTime, y=master.DISCHPR, name='Discharge Pressure (psig)')
 trace_swingspd = go.Scatter(x=master.DateTime, y=master.SWINGSPD, name='Swing Speed (fpm)')
 trace_swingradius = go.Scatter(x=master.DateTime, y=master.SWINGRADIUS, name='Swing Radius (ft)')
@@ -159,9 +167,9 @@ trace_p1gear = go.Scatter(x=master['DateTime'], y=master['P1GEAR'],name="Gear Ra
 trace_p1engrpm = go.Scatter(x=master['DateTime'], y=master['P1ENGRPM'],name="Engine RPM")
 trace_p1rpmsp = go.Scatter(x=master['DateTime'], y=master['P1RPMSP'],name="Engine RPM Set Point")
 trace_p1fcsp = go.Scatter(x=master['DateTime'], y=master['P1FCSP'],name="Flow Control Set Point (fpm)")
-trace_p1spcsp = go.Scatter(x=master['DateTime'], y=master['P1PCSP'],name="Suction Pressure Control Set Point (psig)")
+trace_p1spcsp = go.Scatter(x=master['DateTime'], y=master['P1SPCSP'],name="Suction Pressure Control Set Point (psig)")
 trace_p1dpcsp = go.Scatter(x=master['DateTime'], y=master['P1DPCSP'],name="Discharge Pressure Control Set Point (psig)")
-trace_p1smsp = go.Scatter(x=master['DateTime'], y=master['VELOCITY'],name="Speed Match Control Bias Set Point (RPM)")
+trace_p1smsp = go.Scatter(x=master['DateTime'], y=master['P1SMCSP'],name="Speed Match Control Bias Set Point (RPM)")
 
 pump1data = [trace_p1intake,trace_p1discharge,trace_p1hp,trace_p1hplimit,trace_p1gear,trace_p1engrpm,trace_p1rpmsp,trace_p1fcsp,trace_p1dpcsp,trace_p1smsp]
 
@@ -175,9 +183,9 @@ trace_p2gear = go.Scatter(x=master['DateTime'], y=master['P2GEAR'],name="Gear Ra
 trace_p2engrpm = go.Scatter(x=master['DateTime'], y=master['P2ENGRPM'],name="Engine RPM")
 trace_p2rpmsp = go.Scatter(x=master['DateTime'], y=master['P2RPMSP'],name="Engine RPM Set Point")
 trace_p2fcsp = go.Scatter(x=master['DateTime'], y=master['P2FCSP'],name="Flow Control Set Point (fpm)")
-# trace_p2spcsp = go.Scatter(x=master['DateTime'], y=master['P2SPCSP'],name="Suction Pressure Control Set Point (psig)")
+trace_p2spcsp = go.Scatter(x=master['DateTime'], y=master['P2SPCSP'],name="Suction Pressure Control Set Point (psig)")
 trace_p2dpcsp = go.Scatter(x=master['DateTime'], y=master['P2DPCSP'],name="Discharge Pressure Control Set Point (psig)")
-trace_p2smsp = go.Scatter(x=master['DateTime'], y=master['VELOCITY'],name="Speed Match Control Bias Set Point (RPM)")
+trace_p2smsp = go.Scatter(x=master['DateTime'], y=master['P2SMCSP'],name="Speed Match Control Bias Set Point (RPM)")
 
 pump2data = [trace_p2intake,trace_p2discharge,trace_p2hp,trace_p2hplimit,trace_p2gear,trace_p2engrpm,trace_p2rpmsp,trace_p2fcsp,trace_p2dpcsp,trace_p2smsp]
 
@@ -225,11 +233,11 @@ trace_sladderlssp = go.Scatter(x=master['DateTime'], y=master['SLADDERLSSP'],nam
 stbdladderdata = [trace_sladderlp,trace_sladderlplim,trace_sladderls,trace_sladderlssp,]
 
 #Main Spud Data
-trace_spmain_xs_lp = go.Scatter(x=master['DateTime'], y=master['SPUDMAINXS_LP'],name="Main Spud or Stern Christmas Tree Winch Line Pull (k-ft/lbs)")
-trace_spudmainlplim = go.Scatter(x=master['DateTime'], y=master['SPMAINLPLIM'],name="Main Spud or Stern Christmas Tree Winch Line Pull Limit (ft/lbs)")
-trace_spudmainls = go.Scatter(x=master['DateTime'], y=master['SPMAINLS'],name="Main Spud or Stern Christmas Tree Winch Line Speed (fpm)")
-trace_spudmainlssp = go.Scatter(x=master['DateTime'], y=master['SPMAINLSSP'],name="Main Spud or Stern Christmas Tree Winch Line Speed Set Point (fpm)")
-trace_spudmainpos = go.Scatter(x=master['DateTime'], y=master['SPMAINPOS'],name="Main Spud Position or Stern Christmas Tree Line Length (ft)")
+trace_spmain_xs_lp = go.Scatter(x=master['DateTime'], y=master['SPUDMAINXSLP'],name="Main Spud or Stern Christmas Tree Winch Line Pull (k-ft/lbs)")
+trace_spudmainlplim = go.Scatter(x=master['DateTime'], y=master['SPUDMAINLPLIM'],name="Main Spud or Stern Christmas Tree Winch Line Pull Limit (ft/lbs)")
+trace_spudmainls = go.Scatter(x=master['DateTime'], y=master['SPUDMAINLS'],name="Main Spud or Stern Christmas Tree Winch Line Speed (fpm)")
+trace_spudmainlssp = go.Scatter(x=master['DateTime'], y=master['SPUDMAINLSSP'],name="Main Spud or Stern Christmas Tree Winch Line Speed Set Point (fpm)")
+trace_spudmainpos = go.Scatter(x=master['DateTime'], y=master['SPUDMAINPOS'],name="Main Spud Position or Stern Christmas Tree Line Length (ft)")
 spudmaindata = [trace_spmain_xs_lp,trace_spudmainlplim,trace_spudmainls,trace_spudmainlssp,trace_spudmainpos]
 
 #Aux Spud Data
@@ -287,7 +295,7 @@ server = app.server
 def overview_table_firstblock():
     return dash_table.DataTable(
         id = 'overview-table',
-
+        #width = '50%',
         columns=[{"name": i, "id": i} for i in firstblocktableframe.columns],
         data=firstblocktableframe.to_dict('records'),
 
@@ -537,9 +545,41 @@ def build_overview_tab():
         id = 'Overview-Container',
         className = 'twelve columns',
         children = [
-            html.Div(className='three columns'),
-            overview_table_firstblock(),
-            html.Div(className='three columns'),
+            html.Br(),
+            html.Div(className = 'three columns', children = [
+                html.H4('Dredge Overview'),
+                html.Div(id = 'status-container',className = 'row',children = [
+                    html.Div(id = 'status-cats', className = 'eight columns', children = [
+                        html.H5('Dredge Status:'),
+                        html.H6('Elapsed Time:'),
+                        html.Br(),
+                        html.H5('Configuration'),
+                        html.H6('Spuds'),
+                        html.H6('Spud Carriage'),
+                        html.H6('Christmas Tree'),
+                    ]),
+                    html.Div(id = 'status-results', className = 'one columns', children = [
+                        html.Br(),
+                        daq.Indicator(id = 'running-light', color = "green", value = True),
+                        html.H6('00:00:00'),
+                        html.Br(),
+                        html.Br(),
+                        html.Br(),
+                        daq.Indicator(id = 'spud-light', color = "#00cc96", value = False),
+                        html.Br(),
+                        daq.Indicator(id = 'carriage-light', color = "#00cc96", value = False),
+                        html.Br(),
+                        daq.Indicator(id = 'xmastree-light', color = "#00cc96", value = False),
+                    ]),
+                ], ),
+
+
+            ]),
+            html.Div(
+                id = 'table-container',
+                className = 'six columns',
+                children = [overview_table_firstblock(),],
+            ),
 
             ]
 
@@ -560,19 +600,7 @@ def build_pumps_tab():
         id ='Pumps-Container',
         className = 'twelve columns',
         children = [
-            # html.Div(
-            # id = 'pumpone-stats-containers',
-            # className = 'row',
-            # children = [
-            #         pumpone_stats('six columns'),
-            #         html.Div(
-            #             id = 'pumpone-table-container',
-            #             className = 'sixcolumns',
-            #             children = pumpone_table(),
-            #         ),
-            #
-            # ],
-            # ),
+
             uwp_stats('six columns'),
             pumpone_stats('six columns'),
             pumptwo_stats('six columns'),
@@ -666,6 +694,7 @@ def build_comparison_tab():
             comparison_stats()
         ],
     )
+app.config.suppress_callback_exceptions = True
 app.layout = html.Div(
     id='Main Container',
     children = [
@@ -688,13 +717,13 @@ app.layout = html.Div(
 )
 @app.callback(
     Output('app-content','children'),
-    [Input('app-tabs','value')])
+    [Input('app-tabs','value'),])
 
 def render_tabs(tab):
-    # global master
-    # cnxn = pyodbc.connect(cnxn_string)
-    # query = "SELECT * FROM "+table+" ORDER BY DateTime;"
-    # master = pd.read_sql(query, cnxn)
+    global master
+    cnxn = pyodbc.connect(cnxn_string)
+    query = "SELECT * FROM "+table+" ORDER BY DateTime;"
+    master = pd.read_sql(query, cnxn)
     if tab == 'overview':
         return build_overview_tab()
     elif tab == 'dredge':
@@ -720,7 +749,12 @@ def render_tabs(tab):
     elif tab == 'comparison':
         return build_comparison_tab()
 
-
+@app.callback(Output('running-light','color'),[Input('interval-component','n-intervals')])
+def update_dredge_status(clicks):
+    if dredge_status == 'On':
+        return 'green'
+    else:
+        return 'red'
 
 if __name__ == '__main__':
 
