@@ -154,13 +154,13 @@ fourthblocktableframe = pd.DataFrame(list(zip(key,instant_datalist,fourthblock_d
 
 #Dredge Data
 dredge_table_data = master[['DateTime','VELOCITY','DENSITY','DISCHPR','SWINGSPD','SWINGRADIUS','CDBW','MDBW','CONFIGURATION',]]
-trace_velocity = go.Scatter(x=master['DateTime'], y=master['VELOCITY'],name="Velocity (fps)",)
-trace_density = go.Scatter(x=master.DateTime, y=master.DENSITY,name='Density (SGU)',)
-trace_dischpr = go.Scatter(x=master.DateTime, y=master.DISCHPR, name='Discharge Pressure (psig)')
-trace_swingspd = go.Scatter(x=master.DateTime, y=master.SWINGSPD, name='Swing Speed (fpm)')
-trace_swingradius = go.Scatter(x=master.DateTime, y=master.SWINGRADIUS, name='Swing Radius (ft)')
-trace_cdbw = go.Scatter(x=master.DateTime, y=master.CDBW, name='Cutter Depth Below Water (ft)')
-trace_mdbw = go.Scatter(x=master.DateTime, y=master.MDBW, name='Max Depth Below Water (ft)')
+trace_velocity = go.Scatter(x=master['DateTime'], y=master['VELOCITY'],name="Velocity (fps)")
+trace_density = go.Scatter(x=master.DateTime, y=master.DENSITY,name='Density (SGU)',yaxis = y2)
+trace_dischpr = go.Scatter(x=master.DateTime, y=master.DISCHPR, name='Discharge Pressure (psig)',yaxis = y2)
+trace_swingspd = go.Scatter(x=master.DateTime, y=master.SWINGSPD, name='Swing Speed (fpm)',yaxis = y2)
+trace_swingradius = go.Scatter(x=master.DateTime, y=master.SWINGRADIUS, name='Swing Radius (ft)',yaxis = y2)
+trace_cdbw = go.Scatter(x=master.DateTime, y=master.CDBW, name='Cutter Depth Below Water (ft)',yaxis = y2)
+trace_mdbw = go.Scatter(x=master.DateTime, y=master.MDBW, name='Max Depth Below Water (ft)',yaxis = y2)
 #trace_configuration = go.Scatter(x=master.DateTime, y=master.CONFIGURATION, name='Configuration')
 data = [trace_velocity,trace_density,trace_dischpr,trace_swingspd,trace_swingradius,trace_cdbw,trace_mdbw,]
 
@@ -293,15 +293,10 @@ comparisondata = [trace_velocity,trace_density,trace_dischpr,trace_swingspd,trac
     ]
 
 layout = dict(showlegend=True)
-# dredgelayout = {
-#     'yaxis' : {
-#         'title':'Test (Units)',
-#
-#     }
-# }
+dredgelayout = go.Layout(yaxis = dict(range = [master.VELOCITY.min(),master.VELOCITY.max()]),
+                            yaxis2 = dict(range = [master.SWINGRADIUS.min(),master.SWINGRADIUS.max()]))
 
-
-dredgegraph = dict(data=data,layout=layout)
+dredgegraph = dict(data=data,layout=dredgelayout)
 uwpgraph = dict(data=uwpdata,layout=layout)
 pump1graph = dict(data = pump1data, layout=layout)
 pump2graph = dict(data = pump2data, layout=layout)
