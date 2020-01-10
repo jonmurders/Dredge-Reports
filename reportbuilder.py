@@ -293,6 +293,13 @@ comparisondata = [trace_velocity,trace_density,trace_dischpr,trace_swingspd,trac
     ]
 
 layout = dict(showlegend=True)
+# dredgelayout = {
+#     'yaxis' : {
+#         'title':'Test (Units)',
+#
+#     }
+# }
+
 
 dredgegraph = dict(data=data,layout=layout)
 uwpgraph = dict(data=uwpdata,layout=layout)
