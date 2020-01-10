@@ -24,7 +24,7 @@ from waitress import serve
 # master = pd.read_sql(query, cnxn)
 # oneday = all.loc[all.DateTime > all.DateTime.shift()-pd.Timedelta(hours = 24)]
 port = 8050
-title = 'Office Test'
+title = 'CR Analysis'
 
 master = pd.read_csv('20010300.csv')
 #formating data
@@ -60,260 +60,260 @@ instantdata = pd.DataFrame(data = master.iloc[-1])
 # dredge_status = instantdata.loc['RUNNING'].values.item()
 instant_velocity = instantdata.loc['VELOCITY'].values.item()
 instant_density = instantdata.loc['DENSITY'].values.item()
-instant_dischpr = instantdata.loc['DISCHPR'].values.item()
-instant_cdbw = instantdata.loc['CDBW'].values.item()
-instant_p1hp = instantdata.loc['P1HP'].values.item()
-instant_p2hp = instantdata.loc['P2HP'].values.item()
-instant_datalist = [instant_velocity,instant_density,instant_dischpr,instant_cdbw,instant_p1hp,instant_p2hp]
-instant_config = instantdata.loc['config'].values.item()
-downtime = instantdata.loc['ElapsedTimeDown'].values.item()
-downtime_str = str(downtime)
-downtime_disp = downtime_str[7:]
-srv_status = instantdata.loc['SRVSTATUS'].values.item()
-srv_uwp_in_opnsp = instantdata.loc['SRVUWPINOPNSP'].values.item()
-srv_uwp_in_clssp = instantdata.loc['SRVUWPINCLSSP'].values.item()
-srv_uwp_out_opnsp = instantdata.loc['SRVUWPPOUTOPNSP'].values.item()
-srv_uwp_out_clssp = instantdata.loc['SRVUWPPOUTCLSSP'].values.item()
-srv_p1_out_opnsp = instantdata.loc['SRVP1OUTOPNSP'].values.item()
-srv_p1_out_clssp = instantdata.loc['SRVP1OUTCLSSP'].values.item()
-srv_p2_out_opnsp = instantdata.loc['SRVP2OUTOPNSP'].values.item()
-srv_p2_out_clssp = instantdata.loc['SRVP2OUTCLSSP'].values.item()
-uwp_intake = instantdata.loc['UWPINTAKE'].values.item()
-uwp_output = instantdata.loc['UWPDISCH'].values.item()
-p1_output = instantdata.loc['P1DISCH'].values.item()
-p2_output = instantdata.loc['P2DISCH'].values.item()
-gen1load = instantdata.loc['GEN1LOADPC'].values.item()
-gen2load = instantdata.loc['GEN2LOADPC'].values.item()
-gen3load = instantdata.loc['GEN3LOADPC'].values.item()
+instant_dischpr = instantdata.loc['MP_2_DISC_PRESS'].values.item()
+# instant_cdbw = instantdata.loc['CDBW'].values.item()
+# instant_p1hp = instantdata.loc['P1HP'].values.item()
+# instant_p2hp = instantdata.loc['P2HP'].values.item()
+instant_datalist = [instant_velocity,instant_density,instant_dischpr,'''instant_cdbw,instant_p1hp,instant_p2hp''']
+# instant_config = instantdata.loc['config'].values.item()
+# downtime = instantdata.loc['ElapsedTimeDown'].values.item()
+# downtime_str = str(downtime)
+# downtime_disp = downtime_str[7:]
+# srv_status = instantdata.loc['SRVSTATUS'].values.item()
+# srv_uwp_in_opnsp = instantdata.loc['SRVUWPINOPNSP'].values.item()
+# srv_uwp_in_clssp = instantdata.loc['SRVUWPINCLSSP'].values.item()
+# srv_uwp_out_opnsp = instantdata.loc['SRVUWPPOUTOPNSP'].values.item()
+# srv_uwp_out_clssp = instantdata.loc['SRVUWPPOUTCLSSP'].values.item()
+# srv_p1_out_opnsp = instantdata.loc['SRVP1OUTOPNSP'].values.item()
+# srv_p1_out_clssp = instantdata.loc['SRVP1OUTCLSSP'].values.item()
+# srv_p2_out_opnsp = instantdata.loc['SRVP2OUTOPNSP'].values.item()
+# srv_p2_out_clssp = instantdata.loc['SRVP2OUTCLSSP'].values.item()
+# uwp_intake = instantdata.loc['UWPINTAKE'].values.item()
+# uwp_output = instantdata.loc['UWPDISCH'].values.item()
+# p1_output = instantdata.loc['P1DISCH'].values.item()
+# p2_output = instantdata.loc['P2DISCH'].values.item()
+# gen1load = instantdata.loc['GEN1LOADPC'].values.item()
+# gen2load = instantdata.loc['GEN2LOADPC'].values.item()
+# gen3load = instantdata.loc['GEN3LOADPC'].values.item()
 
 #finding data for Today
-today = pd.DataFrame(data = master.loc[master.DateTime > date])
-# today_running = today.loc[today['RUNNING']=='ON']
-today_avgdata = today.mean(axis = 0)
-today_velocity = today_avgdata.loc['VELOCITY']
-today_density = today_avgdata.loc['DENSITY']
-today_dischpr = today_avgdata.loc['DISCHPR']
-today_cdbw = today_avgdata.loc['CDBW']
-today_p1hp = today_avgdata.loc['P1HP']
-today_p2hp = today_avgdata.loc['P2HP']
-today_datalist = [today_velocity,today_density,today_dischpr,today_cdbw,today_p1hp,today_p2hp]
-
-#First Block Averages
-# firstblock = today_running.between_time('00:00:00','6:00:00')
-firstblock_avgdata = firstblock.mean(axis = 0)
-firstblock_velocity = firstblock_avgdata.loc['VELOCITY']
-firstblock_density = firstblock_avgdata.loc['DENSITY']
-firstblock_dischpr = firstblock_avgdata.loc['DISCHPR']
-firstblock_cdbw = firstblock_avgdata.loc['CDBW']
-firstblock_p1hp = firstblock_avgdata.loc['P1HP']
-firstblock_p2hp = firstblock_avgdata.loc['P2HP']
-firstblock_datalist = [firstblock_velocity,firstblock_density,firstblock_dischpr,firstblock_cdbw,firstblock_p1hp,firstblock_p2hp]
-
-#Second Block Averages
+# today = pd.DataFrame(data = master.loc[master.DateTime > date])
+# # today_running = today.loc[today['RUNNING']=='ON']
+# today_avgdata = today.mean(axis = 0)
+# today_velocity = today_avgdata.loc['VELOCITY']
+# today_density = today_avgdata.loc['DENSITY']
+# today_dischpr = today_avgdata.loc['DISCHPR']
+# # today_cdbw = today_avgdata.loc['CDBW']
+# # today_p1hp = today_avgdata.loc['P1HP']
+# # today_p2hp = today_avgdata.loc['P2HP']
+# today_datalist = [today_velocity,today_density,today_dischpr,'''today_cdbw,today_p1hp,today_p2hp''']
+#
+# #First Block Averages
+# # firstblock = today_running.between_time('00:00:00','6:00:00')
+# firstblock_avgdata = firstblock.mean(axis = 0)
+# firstblock_velocity = firstblock_avgdata.loc['VELOCITY']
+# firstblock_density = firstblock_avgdata.loc['DENSITY']
+# firstblock_dischpr = firstblock_avgdata.loc['DISCHPR']
+# # firstblock_cdbw = firstblock_avgdata.loc['CDBW']
+# # firstblock_p1hp = firstblock_avgdata.loc['P1HP']
+# # firstblock_p2hp = firstblock_avgdata.loc['P2HP']
+# firstblock_datalist = [firstblock_velocity,firstblock_density,firstblock_dischpr,'''firstblock_cdbw,firstblock_p1hp,firstblock_p2hp''']
+#
+# #Second Block Averages
 # secondblock = today_running.between_time('06:00:01','12:00:00')
-secondblock_avgdata = secondblock.mean(axis = 0)
-secondblock_velocity = secondblock_avgdata.loc['VELOCITY']
-secondblock_density = secondblock_avgdata.loc['DENSITY']
-secondblock_dischpr = secondblock_avgdata.loc['DISCHPR']
-secondblock_cdbw = secondblock_avgdata.loc['CDBW']
-secondblock_p1hp = secondblock_avgdata.loc['P1HP']
-secondblock_p2hp = secondblock_avgdata.loc['P2HP']
-secondblock_datalist = [secondblock_velocity,secondblock_density,secondblock_dischpr,secondblock_cdbw,secondblock_p1hp,secondblock_p2hp]
-
-#Third Block Averages
-# thirdblock = today_running.between_time('12:00:01','18:00:00')
-thirdblock_avgdata = thirdblock.mean(axis = 0)
-thirdblock_velocity = thirdblock_avgdata.loc['VELOCITY']
-thirdblock_density = thirdblock_avgdata.loc['DENSITY']
-thirdblock_dischpr = thirdblock_avgdata.loc['DISCHPR']
-thirdblock_cdbw = thirdblock_avgdata.loc['CDBW']
-thirdblock_p1hp = thirdblock_avgdata.loc['P1HP']
-thirdblock_p2hp = thirdblock_avgdata.loc['P2HP']
-thirdblock_datalist = [thirdblock_velocity,thirdblock_density,thirdblock_dischpr,thirdblock_cdbw,thirdblock_p1hp,thirdblock_p2hp]
-
-
-#Fourth Block Averages
-# fourthblock = today_running.between_time('18:00:01','23:59:59')
-fourthblock_avgdata = fourthblock.mean(axis = 0)
-fourthblock_velocity = fourthblock_avgdata.loc['VELOCITY']
-fourthblock_density = fourthblock_avgdata.loc['DENSITY']
-fourthblock_dischpr = fourthblock_avgdata.loc['DISCHPR']
-fourthblock_cdbw = fourthblock_avgdata.loc['CDBW']
-fourthblock_p1hp = fourthblock_avgdata.loc['P1HP']
-fourthblock_p2hp = fourthblock_avgdata.loc['P2HP']
-fourthblock_datalist = [fourthblock_velocity,fourthblock_density,fourthblock_dischpr,fourthblock_cdbw,fourthblock_p1hp,fourthblock_p2hp]
-
-
-firstblocktableframe = pd.DataFrame(list(zip(key,instant_datalist,firstblock_datalist,secondblock_datalist,thirdblock_datalist,fourthblock_datalist,today_datalist,)), columns = ['Data','Instant','0:00-6:00','6:00-12:00','12:00-18:00','18:00-24:00','Today'])
-secondblocktableframe = pd.DataFrame(list(zip(key,instant_datalist,secondblock_datalist,firstblock_datalist,thirdblock_datalist,fourthblock_datalist,today_datalist,)), columns = ['Data','Instant','6:00-12:00','0:00-6:00','12:00-18:00','18:00-24:00','Today'])
-thirdblocktableframe = pd.DataFrame(list(zip(key,instant_datalist,thirdblock_datalist,firstblock_datalist,secondblock_datalist,fourthblock_datalist,today_datalist,)), columns = ['Data','Instant','12:00-18:00','0:00-6:00','6:00-12:00','18:00-24:00','Today'])
-fourthblocktableframe = pd.DataFrame(list(zip(key,instant_datalist,fourthblock_datalist,firstblock_datalist,secondblock_datalist,thirdblock_datalist,today_datalist,)), columns = ['Data','Instant','18:00-24:00','0:00-6:00','6:00-12:00','12:00-18:00','Today'])
+# secondblock_avgdata = secondblock.mean(axis = 0)
+# secondblock_velocity = secondblock_avgdata.loc['VELOCITY']
+# secondblock_density = secondblock_avgdata.loc['DENSITY']
+# secondblock_dischpr = secondblock_avgdata.loc['DISCHPR']
+# secondblock_cdbw = secondblock_avgdata.loc['CDBW']
+# secondblock_p1hp = secondblock_avgdata.loc['P1HP']
+# secondblock_p2hp = secondblock_avgdata.loc['P2HP']
+# secondblock_datalist = [secondblock_velocity,secondblock_density,secondblock_dischpr,secondblock_cdbw,secondblock_p1hp,secondblock_p2hp]
+#
+# #Third Block Averages
+# # thirdblock = today_running.between_time('12:00:01','18:00:00')
+# thirdblock_avgdata = thirdblock.mean(axis = 0)
+# thirdblock_velocity = thirdblock_avgdata.loc['VELOCITY']
+# thirdblock_density = thirdblock_avgdata.loc['DENSITY']
+# thirdblock_dischpr = thirdblock_avgdata.loc['DISCHPR']
+# thirdblock_cdbw = thirdblock_avgdata.loc['CDBW']
+# thirdblock_p1hp = thirdblock_avgdata.loc['P1HP']
+# thirdblock_p2hp = thirdblock_avgdata.loc['P2HP']
+# thirdblock_datalist = [thirdblock_velocity,thirdblock_density,thirdblock_dischpr,thirdblock_cdbw,thirdblock_p1hp,thirdblock_p2hp]
+#
+#
+# #Fourth Block Averages
+# # fourthblock = today_running.between_time('18:00:01','23:59:59')
+# fourthblock_avgdata = fourthblock.mean(axis = 0)
+# fourthblock_velocity = fourthblock_avgdata.loc['VELOCITY']
+# fourthblock_density = fourthblock_avgdata.loc['DENSITY']
+# fourthblock_dischpr = fourthblock_avgdata.loc['DISCHPR']
+# fourthblock_cdbw = fourthblock_avgdata.loc['CDBW']
+# fourthblock_p1hp = fourthblock_avgdata.loc['P1HP']
+# fourthblock_p2hp = fourthblock_avgdata.loc['P2HP']
+# fourthblock_datalist = [fourthblock_velocity,fourthblock_density,fourthblock_dischpr,fourthblock_cdbw,fourthblock_p1hp,fourthblock_p2hp]
+#
+#
+# firstblocktableframe = pd.DataFrame(list(zip(key,instant_datalist,firstblock_datalist,secondblock_datalist,thirdblock_datalist,fourthblock_datalist,today_datalist,)), columns = ['Data','Instant','0:00-6:00','6:00-12:00','12:00-18:00','18:00-24:00','Today'])
+# secondblocktableframe = pd.DataFrame(list(zip(key,instant_datalist,secondblock_datalist,firstblock_datalist,thirdblock_datalist,fourthblock_datalist,today_datalist,)), columns = ['Data','Instant','6:00-12:00','0:00-6:00','12:00-18:00','18:00-24:00','Today'])
+# thirdblocktableframe = pd.DataFrame(list(zip(key,instant_datalist,thirdblock_datalist,firstblock_datalist,secondblock_datalist,fourthblock_datalist,today_datalist,)), columns = ['Data','Instant','12:00-18:00','0:00-6:00','6:00-12:00','18:00-24:00','Today'])
+# fourthblocktableframe = pd.DataFrame(list(zip(key,instant_datalist,fourthblock_datalist,firstblock_datalist,secondblock_datalist,thirdblock_datalist,today_datalist,)), columns = ['Data','Instant','18:00-24:00','0:00-6:00','6:00-12:00','12:00-18:00','Today'])
 
 
 
 #Dredge Data
-dredge_table_data = master[['DateTime','VELOCITY','DENSITY','DISCHPR','SWINGSPD','SWINGRADIUS','CDBW','MDBW','CONFIGURATION',]]
+# dredge_table_data = master[['DateTime','VELOCITY','DENSITY','DISCHPR','SWINGSPD','SWINGRADIUS','CDBW','MDBW','CONFIGURATION',]]
 trace_velocity = go.Scatter(x=master['DateTime'], y=master['VELOCITY'],name="Velocity (fps)",)
 trace_density = go.Scatter(x=master.DateTime, y=master.DENSITY,name='Density (SGU)',)
-trace_dischpr = go.Scatter(x=master.DateTime, y=master.DISCHPR, name='Discharge Pressure (psig)')
-trace_swingspd = go.Scatter(x=master.DateTime, y=master.SWINGSPD, name='Swing Speed (fpm)')
-trace_swingradius = go.Scatter(x=master.DateTime, y=master.SWINGRADIUS, name='Swing Radius (ft)')
-trace_cdbw = go.Scatter(x=master.DateTime, y=master.CDBW, name='Cutter Depth Below Water (ft)')
-trace_mdbw = go.Scatter(x=master.DateTime, y=master.MDBW, name='Max Depth Below Water (ft)')
+trace_dischpr = go.Scatter(x=master.DateTime, y=master.MP_2_DISC_PRESS, name='Discharge Pressure (psig)')
+# trace_swingspd = go.Scatter(x=master.DateTime, y=master.SWINGSPD, name='Swing Speed (fpm)')
+# trace_swingradius = go.Scatter(x=master.DateTime, y=master.SWINGRADIUS, name='Swing Radius (ft)')
+# trace_cdbw = go.Scatter(x=master.DateTime, y=master.CDBW, name='Cutter Depth Below Water (ft)')
+# trace_mdbw = go.Scatter(x=master.DateTime, y=master.MDBW, name='Max Depth Below Water (ft)')
 #trace_configuration = go.Scatter(x=master.DateTime, y=master.CONFIGURATION, name='Configuration')
-data = [trace_velocity,trace_density,trace_dischpr,trace_swingspd,trace_swingradius,trace_cdbw,trace_mdbw,]
+data = [trace_velocity,trace_density,trace_dischpr,]
 
 # UWP Data
-trace_uwpintake = go.Scatter(x=master['DateTime'], y=master['UWPINTAKE'],name = "Suction Pressure(psig)")
-trace_uwpdisch = go.Scatter(x=master['DateTime'], y=master['UWPDISCH'],name = "Discharge Pressure(psig)")
-trace_uwphp = go.Scatter(x=master['DateTime'], y=master['UWPHP'],name = "Horsepower")
-trace_uwphplimit = go.Scatter(x=master['DateTime'], y=master['UWPHPLIMIT'],name = "Horsepower Limit")
-trace_uwpgear = go.Scatter(x=master['DateTime'], y=master['UWPINTAKE'],name = "Gear Ratio")
-trace_rpm = go.Scatter(x=master['DateTime'], y=master['UWPINTAKE'],name = "RPM")
-trace_rpmsp = go.Scatter(x=master['DateTime'], y=master['UWPINTAKE'],name = "RPM Set Point")
+trace_uwpintake = go.Scatter(x=master['DateTime'], y=master['UWP_SUCTION_PRESS'],name = "Suction Pressure(psig)")
+trace_uwpdisch = go.Scatter(x=master['DateTime'], y=master['UWP_DISC_PRESS'],name = "Discharge Pressure(psig)")
+trace_uwphp = go.Scatter(x=master['DateTime'], y=master['UWP_HP'],name = "Horsepower")
+# trace_uwphplimit = go.Scatter(x=master['DateTime'], y=master['UWPHPLIMIT'],name = "Horsepower Limit")
+# trace_uwpgear = go.Scatter(x=master['DateTime'], y=master['UWPINTAKE'],name = "Gear Ratio")
+trace_rpm = go.Scatter(x=master['DateTime'], y=master['uwp_rpm'],name = "RPM")
+trace_rpmsp = go.Scatter(x=master['DateTime'], y=master['uwp_motor_torque'],name = "Motor Torque")
 
-uwpdata = [trace_uwpintake,trace_uwpdisch,trace_uwphp,trace_uwphplimit,trace_uwpgear,trace_rpm,trace_rpmsp,]
+uwpdata = [trace_uwpintake,trace_uwpdisch, trace_rpm,trace_rpmsp,]
 
 #Pump 1 Data
-pumpone_table_data = master[['DateTime','P1INTAKE','P1DISCH','P1HP','P1HPLIMIT','P1GEAR',]]
-trace_p1intake = go.Scatter(x=master['DateTime'], y=master['P1INTAKE'],name="Intake Pressure (psig)")
-trace_p1discharge = go.Scatter(x=master['DateTime'], y=master['P1DISCH'],name="Discharge Pressure (psig)")
-trace_p1hp = go.Scatter(x=master['DateTime'], y=master['P1HP'],name="Horsepower")
-trace_p1hplimit = go.Scatter(x=master['DateTime'], y=master['P1HPLIMIT'],name="Horsepower Limit")
-trace_p1gear = go.Scatter(x=master['DateTime'], y=master['P1GEAR'],name="Gear Ratio")
-trace_p1engrpm = go.Scatter(x=master['DateTime'], y=master['P1ENGRPM'],name="Engine RPM")
-trace_p1rpmsp = go.Scatter(x=master['DateTime'], y=master['P1RPMSP'],name="Engine RPM Set Point")
-trace_p1fcsp = go.Scatter(x=master['DateTime'], y=master['P1FCSP'],name="Flow Control Set Point (fpm)")
-trace_p1spcsp = go.Scatter(x=master['DateTime'], y=master['P1SPCSP'],name="Suction Pressure Control Set Point (psig)")
-trace_p1dpcsp = go.Scatter(x=master['DateTime'], y=master['P1DPCSP'],name="Discharge Pressure Control Set Point (psig)")
-trace_p1smsp = go.Scatter(x=master['DateTime'], y=master['P1SMCSP'],name="Speed Match Control Bias Set Point (RPM)")
+# pumpone_table_data = master[['DateTime','P1INTAKE','P1DISCH','P1HP','P1HPLIMIT','P1GEAR',]]
+# trace_p1intake = go.Scatter(x=master['DateTime'], y=master['P1INTAKE'],name="Intake Pressure (psig)")
+trace_p1discharge = go.Scatter(x=master['DateTime'], y=master['MP_1_DISC_PRESS'],name="Discharge Pressure (psig)")
+# trace_p1hp = go.Scatter(x=master['DateTime'], y=master['P1HP'],name="Horsepower")
+# trace_p1hplimit = go.Scatter(x=master['DateTime'], y=master['P1HPLIMIT'],name="Horsepower Limit")
+# trace_p1gear = go.Scatter(x=master['DateTime'], y=master['P1GEAR'],name="Gear Ratio")
+trace_p1engrpm = go.Scatter(x=master['DateTime'], y=master['me_1_rpm'],name="Engine RPM")
+# trace_p1rpmsp = go.Scatter(x=master['DateTime'], y=master['P1RPMSP'],name="Engine RPM Set Point")
+# trace_p1fcsp = go.Scatter(x=master['DateTime'], y=master['P1FCSP'],name="Flow Control Set Point (fpm)")
+# trace_p1spcsp = go.Scatter(x=master['DateTime'], y=master['P1SPCSP'],name="Suction Pressure Control Set Point (psig)")
+# trace_p1dpcsp = go.Scatter(x=master['DateTime'], y=master['P1DPCSP'],name="Discharge Pressure Control Set Point (psig)")
+# trace_p1smsp = go.Scatter(x=master['DateTime'], y=master['P1SMCSP'],name="Speed Match Control Bias Set Point (RPM)")
 
-pump1data = [trace_p1intake,trace_p1discharge,trace_p1hp,trace_p1hplimit,trace_p1gear,trace_p1engrpm,trace_p1rpmsp,trace_p1fcsp,trace_p1dpcsp,trace_p1smsp]
+pump1data = [trace_p1discharge,trace_p1engrpm,]
 
 #Pump 2 Data
-pumpone_table_data = master[['DateTime','P2INTAKE','P2DISCH','P2HP','P2HPLIMIT','P2GEAR',]]
-trace_p2intake = go.Scatter(x=master['DateTime'], y=master['P2INTAKE'],name="Intake Pressure (psig)")
-trace_p2discharge = go.Scatter(x=master['DateTime'], y=master['P2DISCH'],name="Discharge Pressure (psig)")
-trace_p2hp = go.Scatter(x=master['DateTime'], y=master['P2HP'],name="Horsepower")
-trace_p2hplimit = go.Scatter(x=master['DateTime'], y=master['P2HPLIMIT'],name="Horsepower Limit")
-trace_p2gear = go.Scatter(x=master['DateTime'], y=master['P2GEAR'],name="Gear Ratio")
-trace_p2engrpm = go.Scatter(x=master['DateTime'], y=master['P2ENGRPM'],name="Engine RPM")
-trace_p2rpmsp = go.Scatter(x=master['DateTime'], y=master['P2RPMSP'],name="Engine RPM Set Point")
-trace_p2fcsp = go.Scatter(x=master['DateTime'], y=master['P2FCSP'],name="Flow Control Set Point (fpm)")
-trace_p2spcsp = go.Scatter(x=master['DateTime'], y=master['P2SPCSP'],name="Suction Pressure Control Set Point (psig)")
-trace_p2dpcsp = go.Scatter(x=master['DateTime'], y=master['P2DPCSP'],name="Discharge Pressure Control Set Point (psig)")
-trace_p2smsp = go.Scatter(x=master['DateTime'], y=master['P2SMCSP'],name="Speed Match Control Bias Set Point (RPM)")
+# pumpone_table_data = master[['DateTime','P2INTAKE','P2DISCH','P2HP','P2HPLIMIT','P2GEAR',]]
+# trace_p2intake = go.Scatter(x=master['DateTime'], y=master['P2INTAKE'],name="Intake Pressure (psig)")
+trace_p2discharge = go.Scatter(x=master['DateTime'], y=master['MP_2_DISC_PRESS'],name="Discharge Pressure (psig)")
+# trace_p2hp = go.Scatter(x=master['DateTime'], y=master['P2HP'],name="Horsepower")
+# trace_p2hplimit = go.Scatter(x=master['DateTime'], y=master['P2HPLIMIT'],name="Horsepower Limit")
+# trace_p2gear = go.Scatter(x=master['DateTime'], y=master['P2GEAR'],name="Gear Ratio")
+trace_p2engrpm = go.Scatter(x=master['DateTime'], y=master['me_2_rpm'],name="Engine RPM")
+# trace_p2rpmsp = go.Scatter(x=master['DateTime'], y=master['P2RPMSP'],name="Engine RPM Set Point")
+# trace_p2fcsp = go.Scatter(x=master['DateTime'], y=master['P2FCSP'],name="Flow Control Set Point (fpm)")
+# trace_p2spcsp = go.Scatter(x=master['DateTime'], y=master['P2SPCSP'],name="Suction Pressure Control Set Point (psig)")
+# trace_p2dpcsp = go.Scatter(x=master['DateTime'], y=master['P2DPCSP'],name="Discharge Pressure Control Set Point (psig)")
+# trace_p2smsp = go.Scatter(x=master['DateTime'], y=master['P2SMCSP'],name="Speed Match Control Bias Set Point (RPM)")
 
-pump2data = [trace_p2intake,trace_p2discharge,trace_p2hp,trace_p2hplimit,trace_p2gear,trace_p2engrpm,trace_p2rpmsp,trace_p2fcsp,trace_p2dpcsp,trace_p2smsp]
+pump2data = [trace_p2discharge,trace_p2engrpm,]
 
 #Cutter Data
 
-trace_cuttertorque = go.Scatter(x=master['DateTime'], y=master['CUTTERT'],name="Cutter Torque (k-ft/lbs)")
-trace_cuttertorquelimit = go.Scatter(x=master['DateTime'], y=master['CUTTERTLIM'],name="Cutter Torque Limit (%)")
-trace_cutterrpm = go.Scatter(x=master['DateTime'], y=master['CUTTERRPM'],name="Cutter RPM")
-trace_cutterrpmsp = go.Scatter(x=master['DateTime'], y=master['CUTTERRPMSP'],name="Cutter RPM Set Point")
+# trace_cuttertorque = go.Scatter(x=master['DateTime'], y=master['CUTTERT'],name="Cutter Torque (k-ft/lbs)")
+# trace_cuttertorquelimit = go.Scatter(x=master['DateTime'], y=master['CUTTERTLIM'],name="Cutter Torque Limit (%)")
+# trace_cutterrpm = go.Scatter(x=master['DateTime'], y=master['CUTTERRPM'],name="Cutter RPM")
+# trace_cutterrpmsp = go.Scatter(x=master['DateTime'], y=master['CUTTERRPMSP'],name="Cutter RPM Set Point")
 
-cutterdata = [trace_cuttertorque,trace_cuttertorquelimit,trace_cutterrpm,trace_cutterrpmsp]
+# cutterdata = [trace_cuttertorque,trace_cuttertorquelimit,trace_cutterrpm,trace_cutterrpmsp]
 
 #Port Swing Hoist Data
-trace_pswinglp = go.Scatter(x=master['DateTime'], y=master['PSWINGLP'],name="Line Pull (k-ft/lbs)")
-trace_pswinglplim = go.Scatter(x=master['DateTime'], y=master['PSWINGLPLIM'],name="Line Pull Limit (ft/lbs)")
-trace_pswingdrumdia = go.Scatter(x=master['DateTime'], y=master['PSWINGDRUMDIA'],name="Drum Diameter Factor)")
-trace_pswingls = go.Scatter(x=master['DateTime'], y=master['PSWINGLS'],name="Hoist Line Speed (fpm)")
-trace_pswinglssp = go.Scatter(x=master['DateTime'], y=master['PSWINGLSSP'],name="Hoist Line Speed Set Point (fpm)")
-
-portswingdata = [trace_pswinglp,trace_pswinglplim,trace_pswingdrumdia,trace_pswingls,trace_pswinglssp,]
-
-#Stbd Swing Hoist Data
-trace_sswinglp = go.Scatter(x=master['DateTime'], y=master['SSWINGLP'],name="Line Pull (k-ft/lbs)")
-trace_sswinglplim = go.Scatter(x=master['DateTime'], y=master['SSWINGLPLIM'],name="Line Pull Limit (ft/lbs)")
-trace_sswingdrumdia = go.Scatter(x=master['DateTime'], y=master['SSWINGDRUMDIA'],name="Drum Diameter Factor)")
-trace_sswingls = go.Scatter(x=master['DateTime'], y=master['SSWINGLS'],name="Hoist Line Speed (fpm)")
-trace_sswinglssp = go.Scatter(x=master['DateTime'], y=master['SSWINGLSSP'],name="Hoist Line Speed Set Point (fpm)")
-
-stbdswingdata = [trace_sswinglp,trace_sswinglplim,trace_sswingdrumdia,trace_sswingls,trace_sswinglssp,]
-
-#Port Ladder Hoist Data
-trace_pladderlp = go.Scatter(x=master['DateTime'], y=master['PLADDERLP'],name="Line Pull (k-ft/lbs)")
-trace_pladderlplim = go.Scatter(x=master['DateTime'], y=master['PLADDERLPLIM'],name="Line Pull Limit (ft/lbs)")
-trace_pladderls = go.Scatter(x=master['DateTime'], y=master['PLADDERLS'],name="Hoist Line Speed (fpm)")
-trace_pladderlssp = go.Scatter(x=master['DateTime'], y=master['PLADDERLSSP'],name="Hoist Line Speed Set Point (fpm)")
-
-portladderdata = [trace_pladderlp,trace_pladderlplim,trace_pladderls,trace_pladderlssp,]
-
-#Stbd Ladder Hoist Data
-trace_sladderlp = go.Scatter(x=master['DateTime'], y=master['SLADDERLP'],name="Line Pull (k-ft/lbs)")
-trace_sladderlplim = go.Scatter(x=master['DateTime'], y=master['SLADDERLPLIM'],name="Line Pull Limit (ft/lbs)")
-trace_sladderls = go.Scatter(x=master['DateTime'], y=master['SLADDERLS'],name="Hoist Line Speed (fpm)")
-trace_sladderlssp = go.Scatter(x=master['DateTime'], y=master['SLADDERLSSP'],name="Hoist Line Speed Set Point (fpm)")
-
-stbdladderdata = [trace_sladderlp,trace_sladderlplim,trace_sladderls,trace_sladderlssp,]
-
-#Main Spud Data
-trace_spmain_xs_lp = go.Scatter(x=master['DateTime'], y=master['SPUDMAINXSLP'],name="Main Spud or Stern Christmas Tree Winch Line Pull (k-ft/lbs)")
-trace_spudmainlplim = go.Scatter(x=master['DateTime'], y=master['SPUDMAINLPLIM'],name="Main Spud or Stern Christmas Tree Winch Line Pull Limit (ft/lbs)")
-trace_spudmainls = go.Scatter(x=master['DateTime'], y=master['SPUDMAINLS'],name="Main Spud or Stern Christmas Tree Winch Line Speed (fpm)")
-trace_spudmainlssp = go.Scatter(x=master['DateTime'], y=master['SPUDMAINLSSP'],name="Main Spud or Stern Christmas Tree Winch Line Speed Set Point (fpm)")
-trace_spudmainpos = go.Scatter(x=master['DateTime'], y=master['SPUDMAINPOS'],name="Main Spud Position or Stern Christmas Tree Line Length (ft)")
-spudmaindata = [trace_spmain_xs_lp,trace_spudmainlplim,trace_spudmainls,trace_spudmainlssp,trace_spudmainpos]
-
-#Aux Spud Data
-trace_spaux_xs_lp = go.Scatter(x=master['DateTime'], y=master['SPUDAUXLP'],name="Aux Spud or Port Christmas Tree Winch Line Pull (k-ft/lbs)")
-trace_spudauxlplim = go.Scatter(x=master['DateTime'], y=master['SPUDAUXLPLIM'],name="Aux Spud or Port Christmas Tree Winch Line Pull Limit (ft/lbs)")
-trace_spudauxls = go.Scatter(x=master['DateTime'], y=master['SPUDAUXLS'],name="Aux Spud or Port Christmas Tree Winch Line Speed (fpm)")
-trace_spudauxlssp = go.Scatter(x=master['DateTime'], y=master['SPUDAUXLSSP'],name="Aux Spud or Port Christmas Tree Winch Line Speed Set Point (fpm)")
-trace_spudauxpos = go.Scatter(x=master['DateTime'], y=master['SPUDAUXPOS'],name="Aux Spud Position or Port Christmas Tree Line Length (ft)")
-
-spudauxdata = [trace_spaux_xs_lp,trace_spudauxlplim,trace_spudauxls,trace_spudauxlssp,trace_spudauxpos]
-
-#Spud Carriage Data
-trace_spcar_xs_lp = go.Scatter(x=master['DateTime'], y=master['SPUDCARLP'],name="Spud Carriage or Stbd Christmas Tree Winch Line Pull (k-ft/lbs)")
-trace_spudcarlplim = go.Scatter(x=master['DateTime'], y=master['SPUDCARLPLIM'],name="Spud Carriage or Stbd Christmas Tree Winch Line Pull Limit (ft/lbs)")
-trace_spudcarls = go.Scatter(x=master['DateTime'], y=master['SPUDCARLS'],name="Spud Carriage or Stbd Christmas Tree Winch Line Speed (fpm)")
-trace_spudcarlssp = go.Scatter(x=master['DateTime'], y=master['SPUDCARLSSP'],name="Spud Carriage or Stbd Christmas Tree Winch Line Speed Set Point (fpm)")
-trace_spudcarpos = go.Scatter(x=master['DateTime'], y=master['SPUDCARPOS'],name="Spud Carriage Position or Stbd Christmas Tree Line Length (ft)")
-
-spudcardata = [trace_spcar_xs_lp,trace_spudcarlplim,trace_spudcarls,trace_spudcarlssp,trace_spudcarpos]
-
-#Generator Load Charts
-trace_gen1load = go.Scatter(x=master['DateTime'], y=master['GEN1LOADPC'],name="Gen 1")
-trace_gen2load = go.Scatter(x=master['DateTime'], y=master['GEN2LOADPC'],name="Gen 2")
-trace_gen3load = go.Scatter(x=master['DateTime'], y=master['GEN3LOADPC'],name="Gen 3")
-
-genloaddata = [trace_gen1load,trace_gen2load,trace_gen3load]
-
-comparisondata = [trace_velocity,trace_density,trace_dischpr,trace_swingspd,trace_swingradius,trace_cdbw,trace_mdbw,
-                    trace_uwpintake,trace_uwpdisch,trace_uwphp,trace_uwphplimit,trace_uwpgear,trace_rpm,trace_rpmsp,
-                    trace_p1intake,trace_p1discharge,trace_p1hp,trace_p1hplimit,trace_p1gear,
-                    trace_p2intake,trace_p2discharge,trace_p2hp,trace_p2hplimit,trace_p2gear,
-                    trace_cuttertorque,trace_cuttertorquelimit,trace_cutterrpm,trace_cutterrpmsp,
-                    trace_pswinglp,trace_pswinglplim,trace_pswingdrumdia,trace_pswingls,trace_pswinglssp,
-                    trace_sswinglp,trace_sswinglplim,trace_sswingdrumdia,trace_sswingls,trace_sswinglssp,
-    ]
-
-layout = dict(showlegend=True)
-# dredgelayout = {
-#     'yaxis' : {
-#         'title':'Test (Units)',
+# trace_pswinglp = go.Scatter(x=master['DateTime'], y=master['PSWINGLP'],name="Line Pull (k-ft/lbs)")
+# trace_pswinglplim = go.Scatter(x=master['DateTime'], y=master['PSWINGLPLIM'],name="Line Pull Limit (ft/lbs)")
+# trace_pswingdrumdia = go.Scatter(x=master['DateTime'], y=master['PSWINGDRUMDIA'],name="Drum Diameter Factor)")
+# trace_pswingls = go.Scatter(x=master['DateTime'], y=master['PSWINGLS'],name="Hoist Line Speed (fpm)")
+# trace_pswinglssp = go.Scatter(x=master['DateTime'], y=master['PSWINGLSSP'],name="Hoist Line Speed Set Point (fpm)")
 #
-#     }
-# }
-
+# portswingdata = [trace_pswinglp,trace_pswinglplim,trace_pswingdrumdia,trace_pswingls,trace_pswinglssp,]
+#
+# #Stbd Swing Hoist Data
+# trace_sswinglp = go.Scatter(x=master['DateTime'], y=master['SSWINGLP'],name="Line Pull (k-ft/lbs)")
+# trace_sswinglplim = go.Scatter(x=master['DateTime'], y=master['SSWINGLPLIM'],name="Line Pull Limit (ft/lbs)")
+# trace_sswingdrumdia = go.Scatter(x=master['DateTime'], y=master['SSWINGDRUMDIA'],name="Drum Diameter Factor)")
+# trace_sswingls = go.Scatter(x=master['DateTime'], y=master['SSWINGLS'],name="Hoist Line Speed (fpm)")
+# trace_sswinglssp = go.Scatter(x=master['DateTime'], y=master['SSWINGLSSP'],name="Hoist Line Speed Set Point (fpm)")
+#
+# stbdswingdata = [trace_sswinglp,trace_sswinglplim,trace_sswingdrumdia,trace_sswingls,trace_sswinglssp,]
+#
+# #Port Ladder Hoist Data
+# trace_pladderlp = go.Scatter(x=master['DateTime'], y=master['PLADDERLP'],name="Line Pull (k-ft/lbs)")
+# trace_pladderlplim = go.Scatter(x=master['DateTime'], y=master['PLADDERLPLIM'],name="Line Pull Limit (ft/lbs)")
+# trace_pladderls = go.Scatter(x=master['DateTime'], y=master['PLADDERLS'],name="Hoist Line Speed (fpm)")
+# trace_pladderlssp = go.Scatter(x=master['DateTime'], y=master['PLADDERLSSP'],name="Hoist Line Speed Set Point (fpm)")
+#
+# portladderdata = [trace_pladderlp,trace_pladderlplim,trace_pladderls,trace_pladderlssp,]
+#
+# #Stbd Ladder Hoist Data
+# trace_sladderlp = go.Scatter(x=master['DateTime'], y=master['SLADDERLP'],name="Line Pull (k-ft/lbs)")
+# trace_sladderlplim = go.Scatter(x=master['DateTime'], y=master['SLADDERLPLIM'],name="Line Pull Limit (ft/lbs)")
+# trace_sladderls = go.Scatter(x=master['DateTime'], y=master['SLADDERLS'],name="Hoist Line Speed (fpm)")
+# trace_sladderlssp = go.Scatter(x=master['DateTime'], y=master['SLADDERLSSP'],name="Hoist Line Speed Set Point (fpm)")
+#
+# stbdladderdata = [trace_sladderlp,trace_sladderlplim,trace_sladderls,trace_sladderlssp,]
+#
+# #Main Spud Data
+# trace_spmain_xs_lp = go.Scatter(x=master['DateTime'], y=master['SPUDMAINXSLP'],name="Main Spud or Stern Christmas Tree Winch Line Pull (k-ft/lbs)")
+# trace_spudmainlplim = go.Scatter(x=master['DateTime'], y=master['SPUDMAINLPLIM'],name="Main Spud or Stern Christmas Tree Winch Line Pull Limit (ft/lbs)")
+# trace_spudmainls = go.Scatter(x=master['DateTime'], y=master['SPUDMAINLS'],name="Main Spud or Stern Christmas Tree Winch Line Speed (fpm)")
+# trace_spudmainlssp = go.Scatter(x=master['DateTime'], y=master['SPUDMAINLSSP'],name="Main Spud or Stern Christmas Tree Winch Line Speed Set Point (fpm)")
+# trace_spudmainpos = go.Scatter(x=master['DateTime'], y=master['SPUDMAINPOS'],name="Main Spud Position or Stern Christmas Tree Line Length (ft)")
+# spudmaindata = [trace_spmain_xs_lp,trace_spudmainlplim,trace_spudmainls,trace_spudmainlssp,trace_spudmainpos]
+#
+# #Aux Spud Data
+# trace_spaux_xs_lp = go.Scatter(x=master['DateTime'], y=master['SPUDAUXLP'],name="Aux Spud or Port Christmas Tree Winch Line Pull (k-ft/lbs)")
+# trace_spudauxlplim = go.Scatter(x=master['DateTime'], y=master['SPUDAUXLPLIM'],name="Aux Spud or Port Christmas Tree Winch Line Pull Limit (ft/lbs)")
+# trace_spudauxls = go.Scatter(x=master['DateTime'], y=master['SPUDAUXLS'],name="Aux Spud or Port Christmas Tree Winch Line Speed (fpm)")
+# trace_spudauxlssp = go.Scatter(x=master['DateTime'], y=master['SPUDAUXLSSP'],name="Aux Spud or Port Christmas Tree Winch Line Speed Set Point (fpm)")
+# trace_spudauxpos = go.Scatter(x=master['DateTime'], y=master['SPUDAUXPOS'],name="Aux Spud Position or Port Christmas Tree Line Length (ft)")
+#
+# spudauxdata = [trace_spaux_xs_lp,trace_spudauxlplim,trace_spudauxls,trace_spudauxlssp,trace_spudauxpos]
+#
+# #Spud Carriage Data
+# trace_spcar_xs_lp = go.Scatter(x=master['DateTime'], y=master['SPUDCARLP'],name="Spud Carriage or Stbd Christmas Tree Winch Line Pull (k-ft/lbs)")
+# trace_spudcarlplim = go.Scatter(x=master['DateTime'], y=master['SPUDCARLPLIM'],name="Spud Carriage or Stbd Christmas Tree Winch Line Pull Limit (ft/lbs)")
+# trace_spudcarls = go.Scatter(x=master['DateTime'], y=master['SPUDCARLS'],name="Spud Carriage or Stbd Christmas Tree Winch Line Speed (fpm)")
+# trace_spudcarlssp = go.Scatter(x=master['DateTime'], y=master['SPUDCARLSSP'],name="Spud Carriage or Stbd Christmas Tree Winch Line Speed Set Point (fpm)")
+# trace_spudcarpos = go.Scatter(x=master['DateTime'], y=master['SPUDCARPOS'],name="Spud Carriage Position or Stbd Christmas Tree Line Length (ft)")
+#
+# spudcardata = [trace_spcar_xs_lp,trace_spudcarlplim,trace_spudcarls,trace_spudcarlssp,trace_spudcarpos]
+#
+# #Generator Load Charts
+# trace_gen1load = go.Scatter(x=master['DateTime'], y=master['GEN1LOADPC'],name="Gen 1")
+# trace_gen2load = go.Scatter(x=master['DateTime'], y=master['GEN2LOADPC'],name="Gen 2")
+# trace_gen3load = go.Scatter(x=master['DateTime'], y=master['GEN3LOADPC'],name="Gen 3")
+#
+# genloaddata = [trace_gen1load,trace_gen2load,trace_gen3load]
+#
+# comparisondata = [trace_velocity,trace_density,trace_dischpr,trace_swingspd,trace_swingradius,trace_cdbw,trace_mdbw,
+#                     trace_uwpintake,trace_uwpdisch,trace_uwphp,trace_uwphplimit,trace_uwpgear,trace_rpm,trace_rpmsp,
+#                     trace_p1intake,trace_p1discharge,trace_p1hp,trace_p1hplimit,trace_p1gear,
+#                     trace_p2intake,trace_p2discharge,trace_p2hp,trace_p2hplimit,trace_p2gear,
+#                     trace_cuttertorque,trace_cuttertorquelimit,trace_cutterrpm,trace_cutterrpmsp,
+#                     trace_pswinglp,trace_pswinglplim,trace_pswingdrumdia,trace_pswingls,trace_pswinglssp,
+#                     trace_sswinglp,trace_sswinglplim,trace_sswingdrumdia,trace_sswingls,trace_sswinglssp,
+#     ]
+#
+layout = dict(showlegend=True)
+# # dredgelayout = {
+# #     'yaxis' : {
+# #         'title':'Test (Units)',
+# #
+# #     }
+# # }
+#
 
 dredgegraph = dict(data=data,layout=layout)
 uwpgraph = dict(data=uwpdata,layout=layout)
 pump1graph = dict(data = pump1data, layout=layout)
 pump2graph = dict(data = pump2data, layout=layout)
-cuttergraph = dict(data = cutterdata, layout = layout,)
-portswinggraph = dict(data = portswingdata, layout = layout,)
-stbdswinggraph = dict(data = stbdswingdata, layout = layout,)
-portladdergraph = dict(data = portladderdata, layout = layout,)
-stbdladdergraph = dict(data = stbdladderdata, layout = layout,)
-spudmaingraph = dict(data = spudmaindata, layout = layout,)
-spudauxgraph = dict(data = spudauxdata, layout = layout,)
-spudcargraph = dict(data = spudcardata, layout = layout,)
-genloadgraph = dict(data = genloaddata, layout = layout,)
-comparisongraph = dict(data = comparisondata, layout = layout)
+# cuttergraph = dict(data = cutterdata, layout = layout,)
+# portswinggraph = dict(data = portswingdata, layout = layout,)
+# stbdswinggraph = dict(data = stbdswingdata, layout = layout,)
+# portladdergraph = dict(data = portladderdata, layout = layout,)
+# stbdladdergraph = dict(data = stbdladderdata, layout = layout,)
+# spudmaingraph = dict(data = spudmaindata, layout = layout,)
+# spudauxgraph = dict(data = spudauxdata, layout = layout,)
+# spudcargraph = dict(data = spudcardata, layout = layout,)
+# genloadgraph = dict(data = genloaddata, layout = layout,)
+# comparisongraph = dict(data = comparisondata, layout = layout)
 #Loading Style Sheet
 external_stylesheets = ['https://codepen.io/jonmurders/pen/qBEoLeE.css']
 
@@ -330,24 +330,24 @@ def overview_table_firstblock():
         data=firstblocktableframe.to_dict('records'),
 
     )
-srvframe = pd.DataFrame(list(zip([
-                                    'UWP Intake Open Set Point',
-                                    'UWP Intake Close Set Point',
-                                    'UWP Output Open Set Point',
-                                    'UWP Output Close Set Point',
-                                    'Pump One Output Open Set Point',
-                                    'Pump One Output Close Set Point',
-                                    'Pump Two Output Open Set Point',
-                                    'Pump Two Output Close Set Point,'],
-                                    [
-                                    srv_uwp_in_opnsp,
-                                    srv_uwp_in_clssp,
-                                    srv_uwp_out_opnsp,
-                                    srv_uwp_out_clssp,
-                                    srv_p1_out_opnsp,
-                                    srv_p1_out_clssp,
-                                    srv_p2_out_opnsp,
-                                    srv_p2_out_clssp,])),columns = ['Data', 'Current Set Points'])
+# srvframe = pd.DataFrame(list(zip([
+#                                     'UWP Intake Open Set Point',
+#                                     'UWP Intake Close Set Point',
+#                                     'UWP Output Open Set Point',
+#                                     'UWP Output Close Set Point',
+#                                     'Pump One Output Open Set Point',
+#                                     'Pump One Output Close Set Point',
+#                                     'Pump Two Output Open Set Point',
+#                                     'Pump Two Output Close Set Point,'],
+#                                     [
+#                                     srv_uwp_in_opnsp,
+#                                     srv_uwp_in_clssp,
+#                                     srv_uwp_out_opnsp,
+#                                     srv_uwp_out_clssp,
+#                                     srv_p1_out_opnsp,
+#                                     srv_p1_out_clssp,
+#                                     srv_p2_out_opnsp,
+#                                     srv_p2_out_clssp,])),columns = ['Data', 'Current Set Points'])
 def srv_table():
     return dash_table.DataTable(
     id = 'srv-table',
@@ -902,10 +902,10 @@ def Title():
     [Input('app-tabs','value'),])
 
 def render_tabs(tab):
-    global master
-    cnxn = pyodbc.connect(cnxn_string)
-    query = "SELECT * FROM "+table+" ORDER BY DateTime;"
-    master = pd.read_sql(query, cnxn)
+    # global master
+    # cnxn = pyodbc.connect(cnxn_string)
+    # query = "SELECT * FROM "+table+" ORDER BY DateTime;"
+    # master = pd.read_sql(query, cnxn)
     if tab == 'overview':
         return build_overview_tab()
     elif tab == 'dredge':
