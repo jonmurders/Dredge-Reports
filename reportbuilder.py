@@ -68,7 +68,25 @@ instant_p2hp = instantdata.loc['P2HP'].values.item()
 instant_datalist = [instant_velocity,instant_density,instant_dischpr,instant_cdbw,instant_p1hp,instant_p2hp]
 instant_config = instantdata.loc['config'].values.item()
 downtime = instantdata.loc['ElapsedTimeDown'].values.item()
-print(downtime)
+downtime_str = str(downtime)
+downtime_disp = downtime_str[7:]
+srv_status = instantdata.loc['SRVSTATUS'].values.item()
+srv_uwp_in_opnsp = instantdata.loc['SRVUWPINOPNSP'].values.item()
+srv_uwp_in_clssp = instantdata.loc['SRVUWPINCLSSP'].values.item()
+srv_uwp_out_opnsp = instantdata.loc['SRVUWPPOUTOPNSP'].values.item()
+srv_uwp_out_clssp = instantdata.loc['SRVUWPPOUTCLSSP'].values.item()
+srv_p1_out_opnsp = instantdata.loc['SRVP1OUTOPNSP'].values.item()
+srv_p1_out_clssp = instantdata.loc['SRVP1OUTCLSSP'].values.item()
+srv_p2_out_opnsp = instantdata.loc['SRVP2OUTOPNSP'].values.item()
+srv_p2_out_clssp = instantdata.loc['SRVP2OUTCLSSP'].values.item()
+uwp_intake = instantdata.loc['UWPINTAKE'].values.item()
+uwp_output = instantdata.loc['UWPDISCH'].values.item()
+p1_output = instantdata.loc['P1DISCH'].values.item()
+p2_output = instantdata.loc['P2DISCH'].values.item()
+gen1load = instantdata.loc['GEN1LOADPC'].values.item()
+gen2load = instantdata.loc['GEN2LOADPC'].values.item()
+gen3load = instantdata.loc['GEN3LOADPC'].values.item()
+
 #finding data for Today
 today = pd.DataFrame(data = master.loc[master.DateTime > date])
 today_running = today.loc[today['RUNNING']=='ON']
@@ -258,7 +276,12 @@ trace_spudcarpos = go.Scatter(x=master['DateTime'], y=master['SPUDCARPOS'],name=
 
 spudcardata = [trace_spcar_xs_lp,trace_spudcarlplim,trace_spudcarls,trace_spudcarlssp,trace_spudcarpos]
 
+#Generator Load Charts
+trace_gen1load = go.Scatter(x=master['DateTime'], y=master['GEN1LOADPC'],name="Gen 1")
+trace_gen2load = go.Scatter(x=master['DateTime'], y=master['GEN2LOADPC'],name="Gen 2")
+trace_gen3load = go.Scatter(x=master['DateTime'], y=master['GEN3LOADPC'],name="Gen 3")
 
+genloaddata = [trace_gen1load,trace_gen2load,trace_gen3load]
 
 comparisondata = [trace_velocity,trace_density,trace_dischpr,trace_swingspd,trace_swingradius,trace_cdbw,trace_mdbw,
                     trace_uwpintake,trace_uwpdisch,trace_uwphp,trace_uwphplimit,trace_uwpgear,trace_rpm,trace_rpmsp,
@@ -283,9 +306,10 @@ stbdladdergraph = dict(data = stbdladderdata, layout = layout,)
 spudmaingraph = dict(data = spudmaindata, layout = layout,)
 spudauxgraph = dict(data = spudauxdata, layout = layout,)
 spudcargraph = dict(data = spudcardata, layout = layout,)
+genloadgraph = dict(data = genloaddata, layout = layout,)
 comparisongraph = dict(data = comparisondata, layout = layout)
 #Loading Style Sheet
-external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
+external_stylesheets = ['https://codepen.io/jonmurders/pen/qBEoLeE.css']
 
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets,)
@@ -300,7 +324,30 @@ def overview_table_firstblock():
         data=firstblocktableframe.to_dict('records'),
 
     )
-
+srvframe = pd.DataFrame(list(zip([
+                                    'UWP Intake Open Set Point',
+                                    'UWP Intake Close Set Point',
+                                    'UWP Output Open Set Point',
+                                    'UWP Output Close Set Point',
+                                    'Pump One Output Open Set Point',
+                                    'Pump One Output Close Set Point',
+                                    'Pump Two Output Open Set Point',
+                                    'Pump Two Output Close Set Point,'],
+                                    [
+                                    srv_uwp_in_opnsp,
+                                    srv_uwp_in_clssp,
+                                    srv_uwp_out_opnsp,
+                                    srv_uwp_out_clssp,
+                                    srv_p1_out_opnsp,
+                                    srv_p1_out_clssp,
+                                    srv_p2_out_opnsp,
+                                    srv_p2_out_clssp,])),columns = ['Data', 'Current Set Points'])
+def srv_table():
+    return dash_table.DataTable(
+    id = 'srv-table',
+    columns=[{"name": i, "id": i} for i in srvframe.columns],
+    data=srvframe.to_dict('records'),
+    )
 
 def dredge_stats():
     return html.Div(
@@ -429,6 +476,8 @@ def spudcar_stats(width):
             ],
     )
 
+
+
 def comparison_stats():
     return html.Div(
     id = 'comparisonstats',
@@ -554,23 +603,28 @@ def build_overview_tab():
                         html.H6('Elapsed Time:'),
                         html.Br(),
                         html.H5('Configuration'),
-                        html.H6('Spuds'),
-                        html.H6('Spud Carriage'),
-                        html.H6('Christmas Tree'),
+                        html.Div(id = 'indicator-container', className = 'row', children = [
+                            html.Div(id = 'spud-light-container',className = 'four columns',children = [
+                                daq.Indicator(id = 'spud-light', color = "#B7BDC0", value = False,label = 'Spuds'),
+                            ],),
+                            html.Div(id = 'spud-light-container',className = 'four columns',children = [
+                                daq.Indicator(id = 'carriage-light', color = "#B7BDC0", value = False,label = 'Carriage'),
+                            ],),
+                            html.Div(id = 'spud-light-container',className = 'four columns',children = [
+                                daq.Indicator(id = 'christmas-tree-light', color = "#B7BDC0", value = False,label = 'X-Mas'),
+                            ],),
+                        ],),
+
+
                     ]),
                     html.Div(id = 'status-results', className = 'one columns', children = [
                         html.Br(),
-                        daq.Indicator(id = 'running-light', color = "green", value = True),
-                        html.H6('00:00:00'),
+                        daq.Indicator(id = 'running-light', color = "red", value = True),
+                        html.H6(downtime_disp),
                         html.Br(),
                         html.Br(),
                         html.Br(),
-                        daq.Indicator(id = 'spud-light', color = "#00cc96", value = False),
-                        html.Br(),
-                        daq.Indicator(id = 'carriage-light', color = "#00cc96", value = False),
-                        html.Br(),
-                        daq.Indicator(id = 'xmastree-light', color = "#00cc96", value = False),
-                    ]),
+                        ]),
                 ], ),
 
 
@@ -601,9 +655,9 @@ def build_pumps_tab():
         className = 'twelve columns',
         children = [
 
-            uwp_stats('six columns'),
-            pumpone_stats('six columns'),
-            pumptwo_stats('six columns'),
+            uwp_stats('twelve columns'),
+            pumpone_stats('twelve columns'),
+            pumptwo_stats('twelve columns'),
         ]
     )
 
@@ -642,8 +696,8 @@ def build_spuds_tab():
         className = 'twelve columns',
         children = [
             spudmain_stats('twelve columns'),
-            spudauxgraph_stats('twelve columns'),
-            spudcargraph_stats('twelve columns'),
+            spudaux_stats('twelve columns'),
+            spudcar_stats('twelve columns'),
         ]
     )
 
@@ -662,8 +716,68 @@ def build_srv_tab():
         id ='SRV-Container',
         className = 'twelve columns',
         children = [
-            pumpone_stats('twelve columns'),
-            pumptwo_stats('twelve columns'),
+            html.Br(),
+            html.Div( id = 'srv-tab-container',
+            className = 'row',
+            children = [
+                html.Div(id = 'srv-indicator-container',className = 'two columns',
+                    children = [
+                        daq.Indicator(id = 'running-light', color = "red", value = True,label = 'Dredge Status'),
+                        html.Br(),
+                        daq.Indicator(id = 'srv-light', color = "red", value = True,label = 'SRV Status'),
+                    ]),
+                html.Div( id = 'srv-data-container',
+                    className = 'four columns',
+                    children = [srv_table()]),
+                html.Div(className = 'row', children = [
+                    html.Div(id = 'srv-gauges-container-1',
+                        className = 'three columns',
+                        children = [
+                            daq.Gauge(
+                                id = 'srv-uwp-in-gauge',
+                                label = 'UWP Intake',
+                                value = 0,
+                                min = 0,
+                                max = 100,
+                                showCurrentValue = True,
+                                units = 'PSIG'
+                            ),
+                            daq.Gauge(
+                                id = 'srv-uwp-out-gauge',
+                                label = 'UWP Discharge',
+                                value = 0,
+                                min = 0,
+                                max = 100,
+                                showCurrentValue = True,
+                                units = 'PSIG'
+                            ),
+                        ],),
+                        html.Div(id = 'srv-gauges-container-2',
+                            className = 'three columns',
+                            children = [
+                            daq.Gauge(
+                                id = 'srv-p1-gauge',
+                                label = 'P1 Discharge',
+                                value = 0,
+                                min = 0,
+                                max = 400,
+                                showCurrentValue = True,
+                                units = 'PSIG'
+                            ),
+                            daq.Gauge(
+                                id = 'srv-p2-gauge',
+                                label = 'P2 Discharge',
+                                value = 0,
+                                min = 0,
+                                max = 400,
+                                showCurrentValue = True,
+                                units = 'PSIG'
+                            ),
+
+                    ],),
+                ],),
+            ],),
+
         ]
     )
 
@@ -672,8 +786,45 @@ def build_generators_tab():
         id ='Generators-Container',
         className = 'twelve columns',
         children = [
-            pumpone_stats('twelve columns'),
-            pumptwo_stats('twelve columns'),
+            html.Br(),
+            html.Div( className = ('row'), children = [
+                html.Div(className = 'four columns', children = [
+                    daq.Gauge(
+                        id = 'gen1-load-gauge',
+                        label = 'Generator 1 Load',
+                        value = 0,
+                        min = 0,
+                        max = 100,
+                        showCurrentValue = True,
+                        units = '%'
+                    ),
+                ],),
+                html.Div(className = 'four columns', children = [
+                    daq.Gauge(
+                        id = 'gen2-load-gauge',
+                        label = 'Generator 2 Load',
+                        value = 0,
+                        min = 0,
+                        max = 100,
+                        showCurrentValue = True,
+                        units = '%'
+                    ),
+                ],),
+                html.Div(className = 'four columns', children = [
+                    daq.Gauge(
+                        id = 'gen3-load-gauge',
+                        label = 'Generator 3 Load',
+                        value = 0,
+                        min = 0,
+                        max = 400,
+                        showCurrentValue = True,
+                        units = '%'
+                    ),
+                ],),
+            ],),
+            html.Div(className = 'twelve columns', children = [
+                dcc.Graph(id='genload-graph',figure = genloadgraph)
+            ],),
         ]
     )
 
@@ -695,6 +846,28 @@ def build_comparison_tab():
         ],
     )
 app.config.suppress_callback_exceptions = True
+
+app.index_string = '''
+<!DOCTYPE html>
+<html>
+    <head>
+        {%metas%}
+        <title>Dredge Dashboard</title>
+        {%favicon%}
+        {%css%}
+    </head>
+    <body>
+        {%app_entry%}
+        <footer>
+            {%config%}
+            {%scripts%}
+            {%renderer%}
+        </footer>
+
+    </body>
+</html>
+'''
+
 app.layout = html.Div(
     id='Main Container',
     children = [
@@ -715,6 +888,9 @@ app.layout = html.Div(
 
         ]
 )
+@server.route("/dash")
+def Title():
+    return app,index()
 @app.callback(
     Output('app-content','children'),
     [Input('app-tabs','value'),])
@@ -752,9 +928,61 @@ def render_tabs(tab):
 @app.callback(Output('running-light','color'),[Input('interval-component','n-intervals')])
 def update_dredge_status(clicks):
     if dredge_status == 'On':
-        return 'green'
+        return '#00cc96'
     else:
         return 'red'
+@app.callback(Output('spud-light','color'),[Input('interval-component','n-intervals')])
+def update_dredge_status(clicks):
+    if instant_config == 'Dredge Spuds':
+        return '#00cc96'
+    else:
+        return '#B7BDC0'
+@app.callback(Output('carriage-light','color'),[Input('interval-component','n-intervals')])
+def update_dredge_status(clicks):
+    if instant_config == 'Carriage Barge':
+        return '#00cc96'
+    else:
+        return '#B7BDC0'
+@app.callback(Output('christmas-tree-light','color'),[Input('interval-component','n-intervals')])
+def update_dredge_status(clicks):
+    if instant_config == 'Christmas Tree':
+        return '#00cc96'
+    else:
+        return '#B7BDC0'
+@app.callback(Output('srv-light','color'),[Input('interval-component','n-intervals')])
+def update_dredge_status(clicks):
+    if dredge_status == 'On':
+        return '#00cc96'
+    else:
+        return 'red'
+
+@app.callback(Output('srv-uwp-in-gauge','value'),[Input('interval-component','n-intervals')])
+def update_srv_uwp_in_gauge(clicks):
+    return uwp_intake
+
+@app.callback(Output('srv-uwp-out-gauge','value'),[Input('interval-component','n-intervals')])
+def update_srv_uwp_out_gauge(clicks):
+    return uwp_output
+
+@app.callback(Output('srv-p1-gauge','value'),[Input('interval-component','n-intervals')])
+def update_srv_uwp_in_gauge(clicks):
+    return p1_output
+
+@app.callback(Output('srv-p2-gauge','value'),[Input('interval-component','n-intervals')])
+def update_srv_uwp_in_gauge(clicks):
+    return p2_output
+
+@app.callback(Output('gen1-load-gauge','value'),[Input('interval-component','n-intervals')])
+def update_srv_uwp_in_gauge(clicks):
+    return gen1load
+
+@app.callback(Output('gen2-load-gauge','value'),[Input('interval-component','n-intervals')])
+def update_srv_uwp_in_gauge(clicks):
+    return gen2load
+
+@app.callback(Output('gen3-load-gauge','value'),[Input('interval-component','n-intervals')])
+def update_srv_uwp_in_gauge(clicks):
+    return gen3load
 
 if __name__ == '__main__':
 
