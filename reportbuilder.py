@@ -26,7 +26,7 @@ from waitress import serve
 port = 8050
 title = 'Office Test'
 
-master = pd.read_csv('20010300.csv')
+master = pd.read_csv('csvdemo.csv')
 #formating data
 
 master.Time = pd.to_datetime(master.Time, format = '%H:%M:%S').dt.time
@@ -41,13 +41,13 @@ time = datetime.time(datetime_now)
 master.index = master.DateTime
 master['Date'] = pd.to_datetime(master.DateTime, format = '%Y/%m/%d')
 #Setting Configuration
-# master.loc[master['CONFIGURATION'] == 0, 'config'] = 'Dredge Spuds'
-# master.loc[master['CONFIGURATION'] == 1, 'config'] = 'Christmas Tree'
-# master.loc[master['CONFIGURATION'] == 2, 'config'] = 'Carriage Barge'
+master.loc[master['CONFIGURATION'] == 0, 'config'] = 'Dredge Spuds'
+master.loc[master['CONFIGURATION'] == 1, 'config'] = 'Christmas Tree'
+master.loc[master['CONFIGURATION'] == 2, 'config'] = 'Carriage Barge'
 
 #Elapsed Down Time
 
-# master['ElapsedTimeDown'] = (master['DateTime'] - master['DateTime'].groupby(master.RUNNING.eq('ON').cumsum()).transform('first'))
+master['ElapsedTimeDown'] = (master['DateTime'] - master['DateTime'].groupby(master.RUNNING.eq('ON').cumsum()).transform('first'))
 
 
 
@@ -57,7 +57,7 @@ key = ['Velocity (fps)', 'Density (SGU)', 'Discharge Pressure (psig)', 'Cutter D
 
 #instant data column of overview table
 instantdata = pd.DataFrame(data = master.iloc[-1])
-# dredge_status = instantdata.loc['RUNNING'].values.item()
+dredge_status = instantdata.loc['RUNNING'].values.item()
 instant_velocity = instantdata.loc['VELOCITY'].values.item()
 instant_density = instantdata.loc['DENSITY'].values.item()
 instant_dischpr = instantdata.loc['DISCHPR'].values.item()
@@ -88,7 +88,7 @@ gen3load = instantdata.loc['GEN3LOADPC'].values.item()
 
 #finding data for Today
 today = pd.DataFrame(data = master.loc[master.DateTime > date])
-# today_running = today.loc[today['RUNNING']=='ON']
+today_running = today.loc[today['RUNNING']=='ON']
 today_avgdata = today.mean(axis = 0)
 today_velocity = today_avgdata.loc['VELOCITY']
 today_density = today_avgdata.loc['DENSITY']
@@ -99,7 +99,7 @@ today_p2hp = today_avgdata.loc['P2HP']
 today_datalist = [today_velocity,today_density,today_dischpr,today_cdbw,today_p1hp,today_p2hp]
 
 #First Block Averages
-# firstblock = today_running.between_time('00:00:00','6:00:00')
+firstblock = today_running.between_time('00:00:00','6:00:00')
 firstblock_avgdata = firstblock.mean(axis = 0)
 firstblock_velocity = firstblock_avgdata.loc['VELOCITY']
 firstblock_density = firstblock_avgdata.loc['DENSITY']
@@ -110,7 +110,7 @@ firstblock_p2hp = firstblock_avgdata.loc['P2HP']
 firstblock_datalist = [firstblock_velocity,firstblock_density,firstblock_dischpr,firstblock_cdbw,firstblock_p1hp,firstblock_p2hp]
 
 #Second Block Averages
-# secondblock = today_running.between_time('06:00:01','12:00:00')
+secondblock = today_running.between_time('06:00:01','12:00:00')
 secondblock_avgdata = secondblock.mean(axis = 0)
 secondblock_velocity = secondblock_avgdata.loc['VELOCITY']
 secondblock_density = secondblock_avgdata.loc['DENSITY']
@@ -121,7 +121,7 @@ secondblock_p2hp = secondblock_avgdata.loc['P2HP']
 secondblock_datalist = [secondblock_velocity,secondblock_density,secondblock_dischpr,secondblock_cdbw,secondblock_p1hp,secondblock_p2hp]
 
 #Third Block Averages
-# thirdblock = today_running.between_time('12:00:01','18:00:00')
+thirdblock = today_running.between_time('12:00:01','18:00:00')
 thirdblock_avgdata = thirdblock.mean(axis = 0)
 thirdblock_velocity = thirdblock_avgdata.loc['VELOCITY']
 thirdblock_density = thirdblock_avgdata.loc['DENSITY']
@@ -133,7 +133,7 @@ thirdblock_datalist = [thirdblock_velocity,thirdblock_density,thirdblock_dischpr
 
 
 #Fourth Block Averages
-# fourthblock = today_running.between_time('18:00:01','23:59:59')
+fourthblock = today_running.between_time('18:00:01','23:59:59')
 fourthblock_avgdata = fourthblock.mean(axis = 0)
 fourthblock_velocity = fourthblock_avgdata.loc['VELOCITY']
 fourthblock_density = fourthblock_avgdata.loc['DENSITY']
@@ -902,10 +902,10 @@ def Title():
     [Input('app-tabs','value'),])
 
 def render_tabs(tab):
-    global master
-    cnxn = pyodbc.connect(cnxn_string)
-    query = "SELECT * FROM "+table+" ORDER BY DateTime;"
-    master = pd.read_sql(query, cnxn)
+    # global master
+    # cnxn = pyodbc.connect(cnxn_string)
+    # query = "SELECT * FROM "+table+" ORDER BY DateTime;"
+    # master = pd.read_sql(query, cnxn)
     if tab == 'overview':
         return build_overview_tab()
     elif tab == 'dredge':
