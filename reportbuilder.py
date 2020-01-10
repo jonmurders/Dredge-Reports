@@ -13,33 +13,35 @@ from waitress import serve
 #clear database
 master = pd.DataFrame([])
 #SQL Connection
-server = 'HMA-S-003'
-database = 'DredgeSQL'
-userid = 'redlion'
-passwd = 'Weeks123!'
-table = '[jschatry].[JSC_325_MAIN]'
-cnxn_string ='DRIVER={ODBC Driver 17 for SQL Server};SERVER='+server+';DATABASE='+database+';UID='+userid+';PWD='+passwd+'; Trusted_Connection=yes'
-cnxn = pyodbc.connect(cnxn_string)
-query = "SELECT * FROM "+table+" ORDER BY DateTime;"
-master = pd.read_sql(query, cnxn)
+# server = 'HMA-S-003'
+# database = 'DredgeSQL'
+# userid = 'redlion'
+# passwd = 'Weeks123!'
+# table = '[jschatry].[JSC_325_MAIN]'
+# cnxn_string ='DRIVER={ODBC Driver 17 for SQL Server};SERVER='+server+';DATABASE='+database+';UID='+userid+';PWD='+passwd+'; Trusted_Connection=yes'
+# cnxn = pyodbc.connect(cnxn_string)
+# query = "SELECT * FROM "+table+" ORDER BY DateTime;"
+# master = pd.read_sql(query, cnxn)
 # oneday = all.loc[all.DateTime > all.DateTime.shift()-pd.Timedelta(hours = 24)]
 port = 8050
 title = 'Office Test'
+
+
+
+master = pd.read_csv('20011000.csv')
+# formating data
+
+master.Time = pd.to_datetime(master.Time, format = '%H:%M:%S').dt.time
+master.Date = pd.to_datetime(master.Date, format = '%Y/%m/%d')
+master.loc[:,'DateTime'] = master.apply(lambda master : pd.datetime.combine(master['Date'],master['Time']),1)
+master.sort_values(by='DateTime')
+master.dropna(axis=0)
+master.index = master.DateTime
+master['Date'] = pd.to_datetime(master.DateTime, format = '%Y/%m/%d')
 datetime_now = datetime.now()
 dtwt = date.today()
 date = datetime.combine(dtwt, datetime.min.time())
 time = datetime.time(datetime_now)
-
-
-master.index = master.DateTime
-#master = pd.read_csv('20010400.csv')
-#formating data
-master['Date'] = pd.to_datetime(master.DateTime, format = '%Y/%m/%d')
-# master.Time = pd.to_datetime(master.Time, format = '%H:%M:%S').dt.time
-# master.Date = pd.to_datetime(master.Date, format = '%Y/%m/%d')
-# master.loc[:,'DateTime'] = master.apply(lambda master : pd.datetime.combine(master['Date'],master['Time']),1)
-# master.sort_values(by='DateTime')
-# master.dropna(axis=0)
 
 #Setting Configuration
 master.loc[master['CONFIGURATION'] == 0, 'config'] = 'Dredge Spuds'
@@ -154,13 +156,13 @@ fourthblocktableframe = pd.DataFrame(list(zip(key,instant_datalist,fourthblock_d
 
 #Dredge Data
 dredge_table_data = master[['DateTime','VELOCITY','DENSITY','DISCHPR','SWINGSPD','SWINGRADIUS','CDBW','MDBW','CONFIGURATION',]]
-trace_velocity = go.Scatter(x=master['DateTime'], y=master['VELOCITY'],name="Velocity (fps)")
-trace_density = go.Scatter(x=master.DateTime, y=master.DENSITY,name='Density (SGU)',yaxis = y2)
-trace_dischpr = go.Scatter(x=master.DateTime, y=master.DISCHPR, name='Discharge Pressure (psig)',yaxis = y2)
-trace_swingspd = go.Scatter(x=master.DateTime, y=master.SWINGSPD, name='Swing Speed (fpm)',yaxis = y2)
-trace_swingradius = go.Scatter(x=master.DateTime, y=master.SWINGRADIUS, name='Swing Radius (ft)',yaxis = y2)
-trace_cdbw = go.Scatter(x=master.DateTime, y=master.CDBW, name='Cutter Depth Below Water (ft)',yaxis = y2)
-trace_mdbw = go.Scatter(x=master.DateTime, y=master.MDBW, name='Max Depth Below Water (ft)',yaxis = y2)
+trace_velocity = go.Scatter(x=master['DateTime'], y=master['VELOCITY'],name="Velocity (fps)",)
+trace_density = go.Scatter(x=master.DateTime, y=master.DENSITY,name='Density (SGU)',yaxis = 'y2')
+trace_dischpr = go.Scatter(x=master.DateTime, y=master.DISCHPR, name='Discharge Pressure (psig)')
+trace_swingspd = go.Scatter(x=master.DateTime, y=master.SWINGSPD, name='Swing Speed (fpm)')
+trace_swingradius = go.Scatter(x=master.DateTime, y=master.SWINGRADIUS, name='Swing Radius (ft)')
+trace_cdbw = go.Scatter(x=master.DateTime, y=master.CDBW, name='Cutter Depth Below Water (ft)')
+trace_mdbw = go.Scatter(x=master.DateTime, y=master.MDBW, name='Max Depth Below Water (ft)')
 #trace_configuration = go.Scatter(x=master.DateTime, y=master.CONFIGURATION, name='Configuration')
 data = [trace_velocity,trace_density,trace_dischpr,trace_swingspd,trace_swingradius,trace_cdbw,trace_mdbw,]
 
@@ -293,10 +295,9 @@ comparisondata = [trace_velocity,trace_density,trace_dischpr,trace_swingspd,trac
     ]
 
 layout = dict(showlegend=True)
-dredgelayout = go.Layout(yaxis = dict(range = [master.VELOCITY.min(),master.VELOCITY.max()]),
-                            yaxis2 = dict(range = [master.SWINGRADIUS.min(),master.SWINGRADIUS.max()]))
 
-dredgegraph = dict(data=data,layout=dredgelayout)
+
+#dredgegraph = dict(data=data)
 uwpgraph = dict(data=uwpdata,layout=layout)
 pump1graph = dict(data = pump1data, layout=layout)
 pump2graph = dict(data = pump2data, layout=layout)
@@ -357,7 +358,10 @@ def dredge_stats():
         className = 'dredgestats',
         children = [
             html.H3(children = 'Dredge Stats'),
-            dcc.Graph(id = 'dredge-graph',figure = dredgegraph),
+            dcc.Graph(id = 'dredge-graph',figure ={'data' : data, 'layout':go.Layout(
+                yaxis = {'title':'Velocity (fps)','range':[master.VELOCITY.min(),master.VELOCITY.max()]},
+                yaxis2 = {'title': 'Density (SGU)','range':[master.DENSITY.min(),master.DENSITY.max()]},
+            )}),
         ]
     )
 
