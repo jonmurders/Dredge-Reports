@@ -9,7 +9,7 @@ from dash.dependencies import Output, Input
 import plotly.graph_objects as go
 import pyodbc
 from waitress import serve
-
+import os
 #clear database
 #master = pd.DataFrame([])
 #SQL Connection
@@ -25,8 +25,8 @@ from waitress import serve
 # oneday = all.loc[all.DateTime > all.DateTime.shift()-pd.Timedelta(hours = 24)]
 port = 8050
 title = 'Office Test'
-
-master = pd.read_csv('csvdemo.csv')
+dir = os.getcwd()
+master = pd.read_csv(str(dir)+'csvdemo.CSV')
 #formating data
 
 master.Time = pd.to_datetime(master.Time, format = '%H:%M:%S').dt.time
@@ -995,4 +995,4 @@ if __name__ == '__main__':
     #HMA Server IP: 10.0.0.11
     #serve(app.server, host='10.0.0.153', port=8050, url_scheme='https',threads=16)
     #Testing
-    app.run_server(debug=True, host = '10.0.0.153', port=port)
+    app.run_server(debug=True, host = '0.0.0.0', port=port)
