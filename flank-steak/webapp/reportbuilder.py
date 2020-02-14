@@ -995,4 +995,4 @@ if __name__ == '__main__':
     #HMA Server IP: 10.0.0.11
     #serve(app.server, host='10.0.0.153', port=8050, url_scheme='https',threads=16)
     #Testing
-    app.run_server(debug=True, host = '127.0.0.1', port=port)
+    app.run_server(debug=True,host='0.0.0.0',  port=port)
